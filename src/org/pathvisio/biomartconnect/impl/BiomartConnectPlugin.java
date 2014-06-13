@@ -3,6 +3,7 @@ package org.pathvisio.biomartconnect.impl;
 import java.awt.BorderLayout;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 import java.util.HashSet;
@@ -16,24 +17,13 @@ import javax.swing.JTable;
 
 import org.w3c.dom.Document;
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 import javax.swing.JTabbedPane;
 import javax.swing.table.AbstractTableModel;
 import javax.swing.table.TableModel;
 
+import org.bridgedb.DataSource;
+import org.bridgedb.IDMapperException;
+import org.bridgedb.IDMapperStack;
 import org.bridgedb.Xref;
 
 import java.io.BufferedReader;
@@ -78,7 +68,6 @@ public class BiomartConnectPlugin extends JPanel implements  SelectionListener, 
 		
 		registry = InfoRegistry.getInfoRegistry();
 		registry.registerInfoProvider(i);
-		registry.registerInfoProvider(i);
 		this.desktop = desktop;
 		
 		desktop.getSwingEngine().getEngine().addApplicationEventListener(this);
@@ -100,7 +89,28 @@ public class BiomartConnectPlugin extends JPanel implements  SelectionListener, 
 	}
 	
 	public JComponent getInformation(Xref xref){
+	//	System.err.println("This is organism " + xref.getDataSource().getOrganism());
+	//	System.err.println(xref.getDataSource());
 		
+/*		IDMapperStack stack = desktop.getSwingEngine().getGdbManager().getCurrentGdb();
+		try {
+			Set<Xref> resultSet = stack.mapID(xref, DataSource.getBySystemCode("En"));
+			Iterator<Xref> x = resultSet.iterator();
+			while(x.hasNext()){
+				Xref temp = x.next();
+				System.err.println(temp.getId());
+				System.err.println(temp.getDataSource());				
+			}
+		} catch (IDMapperException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+*/		
+		
+		
+		if(!xref.getDataSource().toString().equals("Ensembl")){
+			return(new JLabel ("Data Source for this node is not Ensembl."));
+		}
 		if(BiomartQueryService.isInternetReachable())
 		{
 			System.err.println("Internet is ok");
@@ -121,20 +131,27 @@ public class BiomartConnectPlugin extends JPanel implements  SelectionListener, 
 			attrs.add("status");
 			
 			Collection<String> identifierFilters = new HashSet<String>();
-			identifierFilters.add("ENSG00000261657");
+			identifierFilters.add(xref.getId().toString());
 			
 			Document result = BiomartQueryService.createQuery(set, attrs, identifierFilters);
 			
 			InputStream is = BiomartQueryService.getDataStream(result);
-			
-			String s = getStringFromInputStream(is);			
+			String s = getStringFromInputStream(is);
+			if(s.equals("Invalid")){
+				return new JLabel ("No information returned.");
+			}
+			else{			
 			return arrayToTable(csvReader(s));
+			}
+		}
+		else{
+		
+			System.err.println("Internet not working");
+			JLabel jl = new JLabel ("Error: Cannot connect to the internet.");
+			jl.setHorizontalAlignment(JLabel.RIGHT);
+			return jl;
 			
 		}
-		else
-			System.err.println("Internet not working");
-	
-		return null;
 	}
 	
 	public void selectionEvent(SelectionEvent e) {
@@ -163,6 +180,7 @@ public class BiomartConnectPlugin extends JPanel implements  SelectionListener, 
 
 	private static String getStringFromInputStream(InputStream is) {
 		 
+		int count = 0;
 		BufferedReader br = null;
 		StringBuilder sb = new StringBuilder();
  
@@ -173,6 +191,7 @@ public class BiomartConnectPlugin extends JPanel implements  SelectionListener, 
 			while ((line = br.readLine()) != null) {
 				sb.append(line);
 				sb.append('\n');
+				count++;
 				
 			}
  
@@ -189,7 +208,12 @@ public class BiomartConnectPlugin extends JPanel implements  SelectionListener, 
 		}
 
 		sb.deleteCharAt(sb.length()-1);
+		if(count == 1){
+			return("Invalid");
+		}
+		else{
 		return sb.toString();
+		}
 	}
 	
 	private static String[][] csvReader(String s){
