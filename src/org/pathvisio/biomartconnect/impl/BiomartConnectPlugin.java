@@ -33,6 +33,7 @@ import java.io.InputStreamReader;
 
 import org.pathvisio.core.ApplicationEvent;
 import org.pathvisio.core.Engine.ApplicationEventListener;
+import org.pathvisio.core.data.GdbManager;
 import org.pathvisio.core.model.DataNodeType;
 import org.pathvisio.core.view.Graphics;
 import org.pathvisio.core.view.VPathway;
@@ -64,11 +65,12 @@ public class BiomartConnectPlugin extends JPanel implements  SelectionListener, 
 	@Override
 	public void init(PvDesktop desktop) {
 		
+		this.desktop = desktop;
 		IInfoProvider i = new BiomartConnectPlugin();
 		
 		registry = InfoRegistry.getInfoRegistry();
 		registry.registerInfoProvider(i);
-		this.desktop = desktop;
+		
 		
 		desktop.getSwingEngine().getEngine().addApplicationEventListener(this);
 		VPathway vp = desktop.getSwingEngine().getEngine().getActiveVPathway();
@@ -108,8 +110,8 @@ public class BiomartConnectPlugin extends JPanel implements  SelectionListener, 
 */		
 		
 		
-		if(!xref.getDataSource().toString().equals("Ensembl")){
-			return(new JLabel ("Data Source for this node is not Ensembl."));
+		if(idMapper(xref).getId().toString().isEmpty()){
+			return(new JLabel ("This identifier cannot be mapped to Ensembl."));
 		}
 		if(BiomartQueryService.isInternetReachable())
 		{
@@ -242,6 +244,33 @@ public class BiomartConnectPlugin extends JPanel implements  SelectionListener, 
 	      JScrollPane scrollpane = new JScrollPane(table);
 	      
 		return scrollpane;
+	}
+	
+	private Xref idMapper(Xref xref){
+		IDMapperStack mapper;
+		
+		if(xref.getDataSource().toString().equals("Ensembl")){
+			return xref;			
+		}
+		else
+
+		{
+
+			mapper = desktop.getSwingEngine().getGdbManager().getCurrentGdb();
+
+			try {
+				Set<Xref> result = mapper.mapID(xref, DataSource.getBySystemCode("En"));
+				if(result.isEmpty())
+					return (new Xref(null,null));
+				else
+					return (result.iterator().next());
+			} catch (IDMapperException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+				return (new Xref(null,null));
+			}
+			
+		}
 	}
 	
 	}
