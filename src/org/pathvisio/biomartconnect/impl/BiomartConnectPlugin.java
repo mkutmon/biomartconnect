@@ -35,6 +35,8 @@ import org.pathvisio.core.ApplicationEvent;
 import org.pathvisio.core.Engine.ApplicationEventListener;
 import org.pathvisio.core.data.GdbManager;
 import org.pathvisio.core.model.DataNodeType;
+import org.pathvisio.core.model.PathwayElementEvent;
+import org.pathvisio.core.model.PathwayElementListener;
 import org.pathvisio.core.view.Graphics;
 import org.pathvisio.core.view.VPathway;
 import org.pathvisio.core.view.SelectionBox.SelectionEvent;
@@ -45,11 +47,11 @@ import org.pathvisio.inforegistry.IInfoProvider;
 import org.pathvisio.inforegistry.InfoRegistry;
 
 
-public class BiomartConnectPlugin extends JPanel implements  SelectionListener, ApplicationEventListener, Plugin, IInfoProvider {
+public class BiomartConnectPlugin extends JPanel implements  SelectionListener, ApplicationEventListener, PathwayElementListener, Plugin, IInfoProvider {
 	
 
 	private InfoRegistry registry;
-	private PvDesktop desktop;
+	private static PvDesktop desktop;
 	private JPanel sidePanel;
 	//private JPanel sidePanel1;
 
@@ -64,7 +66,6 @@ public class BiomartConnectPlugin extends JPanel implements  SelectionListener, 
 	
 	@Override
 	public void init(PvDesktop desktop) {
-		
 		this.desktop = desktop;
 		IInfoProvider i = new BiomartConnectPlugin();
 		
@@ -91,34 +92,26 @@ public class BiomartConnectPlugin extends JPanel implements  SelectionListener, 
 	}
 	
 	public JComponent getInformation(Xref xref){
-	//	System.err.println("This is organism " + xref.getDataSource().getOrganism());
-	//	System.err.println(xref.getDataSource());
+
+		String set;
+
+		if(desktop.getSwingEngine().getCurrentOrganism() == null)
+			return(new JLabel ("Organism not set for active pathway."));
 		
-/*		IDMapperStack stack = desktop.getSwingEngine().getGdbManager().getCurrentGdb();
-		try {
-			Set<Xref> resultSet = stack.mapID(xref, DataSource.getBySystemCode("En"));
-			Iterator<Xref> x = resultSet.iterator();
-			while(x.hasNext()){
-				Xref temp = x.next();
-				System.err.println(temp.getId());
-				System.err.println(temp.getDataSource());				
-			}
-		} catch (IDMapperException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-*/		
-		
-		
-		if(idMapper(xref).getId().toString().isEmpty()){
+		if(idMapper(xref).getId().isEmpty()){
 			return(new JLabel ("This identifier cannot be mapped to Ensembl."));
 		}
 		if(BiomartQueryService.isInternetReachable())
 		{
 			System.err.println("Internet is ok");
-			
-			String set = "hsapiens_gene_ensembl";
-			
+
+			if(datasetMapper() != null){
+			set = datasetMapper();
+			}
+			else{
+				return(new JLabel ("This organism is not supported by Ensembl."));
+			}
+						
 			Collection<String> attrs = new HashSet<String>();
 			attrs.add("ensembl_gene_id");
 			attrs.add("external_gene_id");
@@ -151,8 +144,7 @@ public class BiomartConnectPlugin extends JPanel implements  SelectionListener, 
 			System.err.println("Internet not working");
 			JLabel jl = new JLabel ("Error: Cannot connect to the internet.");
 			jl.setHorizontalAlignment(JLabel.RIGHT);
-			return jl;
-			
+			return jl;			
 		}
 	}
 	
@@ -185,18 +177,15 @@ public class BiomartConnectPlugin extends JPanel implements  SelectionListener, 
 		int count = 0;
 		BufferedReader br = null;
 		StringBuilder sb = new StringBuilder();
- 
 		String line;
+		
 		try {
- 
 			br = new BufferedReader(new InputStreamReader(is));
 			while ((line = br.readLine()) != null) {
 				sb.append(line);
 				sb.append('\n');
-				count++;
-				
+				count++;		
 			}
- 
 		} catch (IOException e) {
 			e.printStackTrace();
 		} finally {
@@ -221,12 +210,9 @@ public class BiomartConnectPlugin extends JPanel implements  SelectionListener, 
 	private static String[][] csvReader(String s){
 		
 		String[] lines = s.split("\n");
-		
 		String[] keys = lines[0].split("\t");
 		String[] values = lines[1].split("\t");
-		
 		String[][] attr = {keys,values};
-
 		return(attr);
 	}
 	
@@ -252,25 +238,82 @@ public class BiomartConnectPlugin extends JPanel implements  SelectionListener, 
 		if(xref.getDataSource().toString().equals("Ensembl")){
 			return xref;			
 		}
-		else
-
-		{
-
+		else{
 			mapper = desktop.getSwingEngine().getGdbManager().getCurrentGdb();
-
+			Set<Xref> result;
 			try {
-				Set<Xref> result = mapper.mapID(xref, DataSource.getBySystemCode("En"));
-				if(result.isEmpty())
-					return (new Xref(null,null));
-				else
-					return (result.iterator().next());
+				result = mapper.mapID(xref, DataSource.getBySystemCode("En"));
 			} catch (IDMapperException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
-				return (new Xref(null,null));
+				return (new Xref("",null));
 			}
-			
+			if(result.isEmpty())
+				return (new Xref("",null));
+			else
+				return (result.iterator().next());
 		}
+	}
+	
+	private String datasetMapper(){
+		
+		
+		switch (desktop.getSwingEngine().getCurrentOrganism().toString()) {
+		
+		case"AnophelesGambiae": return null;
+		case"ArabidopsisThaliana": return null;
+		case"Aspergillusniger": return null;
+		case"BacillusSubtilis": return null;
+		case"BosTaurus": return "btaurus_gene_ensembl";
+		case"CaenorhabditisElegans": return "celegans_gene_ensembl";
+		case"CanisFamiliaris": return "cfamiliaris_gene_ensembl";		
+		case"CionaIntestinalis": return null;
+		case"Clostridiumthermocellum": return null;
+		case"DanioRerio": return "drerio_gene_ensembl";
+		case"DasypusNovemcinctus": return "dnovemcinctus_gene_ensembl";
+		case"DrosophilaMelanogaster": return "dmelanogaster_gene_ensembl";		
+		case"EscherichiaColi": return null;
+		case"EchinposTelfairi": return "etelfairi_gene_ensembl";
+		case"EquusCaballus": return "ecaballus_gene_ensembl";	
+		case"GallusGallus": return "ggallus_gene_ensembl";
+		case"GlycineMax": return null;
+		case"GibberellaZeae": return null;		
+		case"HomoSapiens": return "hsapiens_gene_ensembl";
+		case"LoxodontaAfricana": return "lafricana_gene_ensembl";
+		case"MacacaMulatta": return "mmulatta_gene_ensembl";	
+		case"MusMusculus": return "mmusculus_gene_ensembl";
+		case"MonodelphisDomestica": return "mdomestica_gene_ensembl";
+		case"MycobacteriumTuberculosis": return null;
+		case"OrnithorhynchusAnatinus": return "oanatinus_gene_ensembl";
+		case"OryzaSativa": return null;
+		case"OryzaJaponica": return null;
+		case"OryzaSativaJaponica": return null;
+		case"OryziasLatipes": return "olatipes_gene_ensembl";
+		case"OryctolagusCuniculus": return "ocuniculus_gene_ensembl";
+		case"PanTroglodytes": return "ptroglodytes_gene_ensembl";
+		case"SolanumLycopersicum": return null;
+		case"SusScrofa": return "sscrofa_gene_ensembl";
+		case"PopulusTrichocarpa": return null;
+		case"RattusNorvegicus": return "rnorvegicus_gene_ensembl";
+		case"SaccharomycesCerevisiae": return "scerevisiae_gene_ensembl";
+		case"SorexAraneus": return "saraneus_gene_ensembl";	
+		case"SorghumBicolor": return null;
+		case"TetraodonNigroviridis": return "tnigroviridis_gene_ensembl";		
+		case"TriticumAestivum": return null;
+		case"XenopusTropicalis": return "xtropicalis_gene_ensembl";
+		case"VitisVinifera": return null;
+		case"ZeaMays": return null;
+		default: return null;
+		}
+		
+	}
+
+
+
+	@Override
+	public void gmmlObjectModified(PathwayElementEvent e) {
+		// TODO Auto-generated method stub
+		
 	}
 	
 	}
