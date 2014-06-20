@@ -34,22 +34,17 @@ import org.pathvisio.inforegistry.IInfoProvider;
 import org.pathvisio.inforegistry.InfoRegistry;
 import org.w3c.dom.Document;
 
-
+/**
+ * 
+ * @author rohansaxena
+ * @author martina
+ *
+ */
 public class BiomartConnectPlugin extends JPanel implements  SelectionListener, ApplicationEventListener, PathwayElementListener, Plugin, IInfoProvider {
 	
-
 	private InfoRegistry registry;
 	private PvDesktop desktop;
 	private JPanel sidePanel;
-	//private JPanel sidePanel1;
-
-	
-	@Override
-	public void done() {
-		desktop.getSideBarTabbedPane().remove(sidePanel);
-	}
-
-	
 	
 	@Override
 	public void init(PvDesktop desktop) {
@@ -99,7 +94,8 @@ public class BiomartConnectPlugin extends JPanel implements  SelectionListener, 
 			else{
 				return(new JLabel ("This organism is not supported by Ensembl."));
 			}
-						
+			
+			//TODO: move this to biomart basic class as properties!
 			Collection<String> attrs = new HashSet<String>();
 			attrs.add("ensembl_gene_id");
 			attrs.add("external_gene_id");
@@ -160,7 +156,7 @@ public class BiomartConnectPlugin extends JPanel implements  SelectionListener, 
 		}
 	}
 
-	private static String getStringFromInputStream(InputStream is) {
+	private String getStringFromInputStream(InputStream is) {
 		 
 		int count = 0;
 		BufferedReader br = null;
@@ -195,8 +191,7 @@ public class BiomartConnectPlugin extends JPanel implements  SelectionListener, 
 		}
 	}
 	
-	private static String[][] csvReader(String s){
-		
+	private String[][] csvReader(String s) {
 		String[] lines = s.split("\n");
 		String[] keys = lines[0].split("\t");
 		String[] values = lines[1].split("\t");
@@ -204,7 +199,7 @@ public class BiomartConnectPlugin extends JPanel implements  SelectionListener, 
 		return(attr);
 	}
 	
-	private static JScrollPane arrayToTable(final String[][] m){
+	private JScrollPane arrayToTable(final String[][] m) {
 		
 		TableModel dataModel = new AbstractTableModel() {
 			 String[] columnNames= {"Attribute","Value"};
@@ -250,66 +245,66 @@ public class BiomartConnectPlugin extends JPanel implements  SelectionListener, 
 		}
 	}
 	
+	/**
+	 * maps between BridgeDb species names
+	 * and Ensembl BioMart species names
+	 */
 	private String datasetMapper(){
-		
-		
 		switch (desktop.getSwingEngine().getCurrentOrganism().toString()) {
-		
-		case"AnophelesGambiae": return null;
-		case"ArabidopsisThaliana": return null;
-		case"Aspergillusniger": return null;
-		case"BacillusSubtilis": return null;
-		case"BosTaurus": return "btaurus_gene_ensembl";
-		case"CaenorhabditisElegans": return "celegans_gene_ensembl";
-		case"CanisFamiliaris": return "cfamiliaris_gene_ensembl";		
-		case"CionaIntestinalis": return null;
-		case"Clostridiumthermocellum": return null;
-		case"DanioRerio": return "drerio_gene_ensembl";
-		case"DasypusNovemcinctus": return "dnovemcinctus_gene_ensembl";
-		case"DrosophilaMelanogaster": return "dmelanogaster_gene_ensembl";		
-		case"EscherichiaColi": return null;
-		case"EchinposTelfairi": return "etelfairi_gene_ensembl";
-		case"EquusCaballus": return "ecaballus_gene_ensembl";	
-		case"GallusGallus": return "ggallus_gene_ensembl";
-		case"GlycineMax": return null;
-		case"GibberellaZeae": return null;		
-		case"HomoSapiens": return "hsapiens_gene_ensembl";
-		case"LoxodontaAfricana": return "lafricana_gene_ensembl";
-		case"MacacaMulatta": return "mmulatta_gene_ensembl";	
-		case"MusMusculus": return "mmusculus_gene_ensembl";
-		case"MonodelphisDomestica": return "mdomestica_gene_ensembl";
-		case"MycobacteriumTuberculosis": return null;
-		case"OrnithorhynchusAnatinus": return "oanatinus_gene_ensembl";
-		case"OryzaSativa": return null;
-		case"OryzaJaponica": return null;
-		case"OryzaSativaJaponica": return null;
-		case"OryziasLatipes": return "olatipes_gene_ensembl";
-		case"OryctolagusCuniculus": return "ocuniculus_gene_ensembl";
-		case"PanTroglodytes": return "ptroglodytes_gene_ensembl";
-		case"SolanumLycopersicum": return null;
-		case"SusScrofa": return "sscrofa_gene_ensembl";
-		case"PopulusTrichocarpa": return null;
-		case"RattusNorvegicus": return "rnorvegicus_gene_ensembl";
-		case"SaccharomycesCerevisiae": return "scerevisiae_gene_ensembl";
-		case"SorexAraneus": return "saraneus_gene_ensembl";	
-		case"SorghumBicolor": return null;
-		case"TetraodonNigroviridis": return "tnigroviridis_gene_ensembl";		
-		case"TriticumAestivum": return null;
-		case"XenopusTropicalis": return "xtropicalis_gene_ensembl";
-		case"VitisVinifera": return null;
-		case"ZeaMays": return null;
-		default: return null;
+			case"AnophelesGambiae": return null;
+			case"ArabidopsisThaliana": return null;
+			case"Aspergillusniger": return null;
+			case"BacillusSubtilis": return null;
+			case"BosTaurus": return "btaurus_gene_ensembl";
+			case"CaenorhabditisElegans": return "celegans_gene_ensembl";
+			case"CanisFamiliaris": return "cfamiliaris_gene_ensembl";		
+			case"CionaIntestinalis": return null;
+			case"Clostridiumthermocellum": return null;
+			case"DanioRerio": return "drerio_gene_ensembl";
+			case"DasypusNovemcinctus": return "dnovemcinctus_gene_ensembl";
+			case"DrosophilaMelanogaster": return "dmelanogaster_gene_ensembl";		
+			case"EscherichiaColi": return null;
+			case"EchinposTelfairi": return "etelfairi_gene_ensembl";
+			case"EquusCaballus": return "ecaballus_gene_ensembl";	
+			case"GallusGallus": return "ggallus_gene_ensembl";
+			case"GlycineMax": return null;
+			case"GibberellaZeae": return null;		
+			case"HomoSapiens": return "hsapiens_gene_ensembl";
+			case"LoxodontaAfricana": return "lafricana_gene_ensembl";
+			case"MacacaMulatta": return "mmulatta_gene_ensembl";	
+			case"MusMusculus": return "mmusculus_gene_ensembl";
+			case"MonodelphisDomestica": return "mdomestica_gene_ensembl";
+			case"MycobacteriumTuberculosis": return null;
+			case"OrnithorhynchusAnatinus": return "oanatinus_gene_ensembl";
+			case"OryzaSativa": return null;
+			case"OryzaJaponica": return null;
+			case"OryzaSativaJaponica": return null;
+			case"OryziasLatipes": return "olatipes_gene_ensembl";
+			case"OryctolagusCuniculus": return "ocuniculus_gene_ensembl";
+			case"PanTroglodytes": return "ptroglodytes_gene_ensembl";
+			case"SolanumLycopersicum": return null;
+			case"SusScrofa": return "sscrofa_gene_ensembl";
+			case"PopulusTrichocarpa": return null;
+			case"RattusNorvegicus": return "rnorvegicus_gene_ensembl";
+			case"SaccharomycesCerevisiae": return "scerevisiae_gene_ensembl";
+			case"SorexAraneus": return "saraneus_gene_ensembl";	
+			case"SorghumBicolor": return null;
+			case"TetraodonNigroviridis": return "tnigroviridis_gene_ensembl";		
+			case"TriticumAestivum": return null;
+			case"XenopusTropicalis": return "xtropicalis_gene_ensembl";
+			case"VitisVinifera": return null;
+			case"ZeaMays": return null;
+			default: return null;
 		}
-		
 	}
-
-
 
 	@Override
 	public void gmmlObjectModified(PathwayElementEvent e) {
-		// TODO Auto-generated method stub
-		
+
 	}
-	
+
+	@Override
+	public void done() {
+		desktop.getSideBarTabbedPane().remove(sidePanel);
 	}
- 
+}
