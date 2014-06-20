@@ -84,8 +84,9 @@ public class BiomartConnectPlugin extends JPanel implements  SelectionListener, 
 
 		if(desktop.getSwingEngine().getCurrentOrganism() == null)
 			return(new JLabel ("Organism not set for active pathway."));
-		
-		if(idMapper(xref).getId().isEmpty()){
+	
+		Xref mapped = idMapper(xref);
+		if(mapped.getId().equals("")){
 			return(new JLabel ("This identifier cannot be mapped to Ensembl."));
 		}
 		if(BiomartQueryService.isInternetReachable())
@@ -113,7 +114,7 @@ public class BiomartConnectPlugin extends JPanel implements  SelectionListener, 
 			attrs.add("status");
 			
 			Collection<String> identifierFilters = new HashSet<String>();
-			identifierFilters.add(xref.getId().toString());
+			identifierFilters.add(mapped.getId().toString());
 			
 			Document result = BiomartQueryService.createQuery(set, attrs, identifierFilters);
 			
