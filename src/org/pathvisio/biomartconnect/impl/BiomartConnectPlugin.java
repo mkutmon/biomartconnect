@@ -1,23 +1,18 @@
 package org.pathvisio.biomartconnect.impl;
 
-import java.awt.BorderLayout;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.util.Collection;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.Set;
 import java.util.HashSet;
+import java.util.Set;
 
-import javax.swing.JComboBox;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
-
-import org.w3c.dom.Document;
-
-import javax.swing.JTabbedPane;
 import javax.swing.table.AbstractTableModel;
 import javax.swing.table.TableModel;
 
@@ -25,33 +20,26 @@ import org.bridgedb.DataSource;
 import org.bridgedb.IDMapperException;
 import org.bridgedb.IDMapperStack;
 import org.bridgedb.Xref;
-
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-
 import org.pathvisio.core.ApplicationEvent;
 import org.pathvisio.core.Engine.ApplicationEventListener;
-import org.pathvisio.core.data.GdbManager;
 import org.pathvisio.core.model.DataNodeType;
 import org.pathvisio.core.model.PathwayElementEvent;
 import org.pathvisio.core.model.PathwayElementListener;
-import org.pathvisio.core.view.Graphics;
-import org.pathvisio.core.view.VPathway;
 import org.pathvisio.core.view.SelectionBox.SelectionEvent;
 import org.pathvisio.core.view.SelectionBox.SelectionListener;
+import org.pathvisio.core.view.VPathway;
 import org.pathvisio.desktop.PvDesktop;
 import org.pathvisio.desktop.plugin.Plugin;
 import org.pathvisio.inforegistry.IInfoProvider;
 import org.pathvisio.inforegistry.InfoRegistry;
+import org.w3c.dom.Document;
 
 
 public class BiomartConnectPlugin extends JPanel implements  SelectionListener, ApplicationEventListener, PathwayElementListener, Plugin, IInfoProvider {
 	
 
 	private InfoRegistry registry;
-	private static PvDesktop desktop;
+	private PvDesktop desktop;
 	private JPanel sidePanel;
 	//private JPanel sidePanel1;
 
@@ -59,7 +47,6 @@ public class BiomartConnectPlugin extends JPanel implements  SelectionListener, 
 	@Override
 	public void done() {
 		desktop.getSideBarTabbedPane().remove(sidePanel);
-		// TODO Auto-generated method stub
 	}
 
 	
@@ -67,15 +54,15 @@ public class BiomartConnectPlugin extends JPanel implements  SelectionListener, 
 	@Override
 	public void init(PvDesktop desktop) {
 		this.desktop = desktop;
-		IInfoProvider i = new BiomartConnectPlugin();
 		
+		// registers plugin as information provider
 		registry = InfoRegistry.getInfoRegistry();
-		registry.registerInfoProvider(i);
+		registry.registerInfoProvider(this);
 		
 		
 		desktop.getSwingEngine().getEngine().addApplicationEventListener(this);
 		VPathway vp = desktop.getSwingEngine().getEngine().getActiveVPathway();
-		if(vp != null) vp.addSelectionListener(this);		
+		if(vp != null) vp.addSelectionListener(this);	
 	}
 	
 	public String getName() {
@@ -159,15 +146,15 @@ public class BiomartConnectPlugin extends JPanel implements  SelectionListener, 
 		}
 	}
 
-	public void applicationEvent(ApplicationEvent e)
-	{
-		switch(e.getType())
-		{
+	public void applicationEvent(ApplicationEvent e) {
+		switch (e.getType()) {
 		case VPATHWAY_CREATED:
-			((VPathway)e.getSource()).addSelectionListener(this);
+			((VPathway) e.getSource()).addSelectionListener(this);
 			break;
 		case VPATHWAY_DISPOSED:
-			((VPathway)e.getSource()).removeSelectionListener(this);
+			((VPathway) e.getSource()).removeSelectionListener(this);
+			break;
+		default:
 			break;
 		}
 	}
