@@ -1,6 +1,9 @@
 package org.pathvisio.biomartconnect.impl;
 
 import java.awt.BorderLayout;
+import java.awt.Container;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -8,8 +11,12 @@ import java.util.Map;
 import java.util.Set;
 import java.util.HashSet;
 
+import javax.swing.BoxLayout;
+import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JComponent;
+import javax.swing.JDialog;
+import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
@@ -53,6 +60,7 @@ public class BiomartConnectPlugin extends JPanel implements  SelectionListener, 
 	private InfoRegistry registry;
 	private static PvDesktop desktop;
 	private JPanel sidePanel;
+	private SettingsDialog sd;
 	//private JPanel sidePanel1;
 
 	
@@ -72,6 +80,8 @@ public class BiomartConnectPlugin extends JPanel implements  SelectionListener, 
 		registry = InfoRegistry.getInfoRegistry();
 		registry.registerInfoProvider(i);
 		
+		sd = new SettingsDialog();
+		System.err.println(sd.selectedOptions());
 		
 		desktop.getSwingEngine().getEngine().addApplicationEventListener(this);
 		VPathway vp = desktop.getSwingEngine().getEngine().getActiveVPathway();
@@ -135,8 +145,34 @@ public class BiomartConnectPlugin extends JPanel implements  SelectionListener, 
 			if(s.equals("Invalid")){
 				return new JLabel ("No information returned.");
 			}
-			else{			
-			return arrayToTable(csvReader(s));
+			else{
+			//return arrayToTable(csvReader(s));
+			JPanel resultPanel = new JPanel();
+			resultPanel.setLayout(new BoxLayout(resultPanel,BoxLayout.Y_AXIS));
+			resultPanel.add(arrayToTable(csvReader(s)));
+			JButton settingsButton = new JButton("Settings");
+			resultPanel.add(settingsButton);
+			
+	        settingsButton.addActionListener(new ActionListener() {
+
+				public void actionPerformed(ActionEvent e){
+					/*new JPanel().add(new JLabel("hello"));
+					JFrame frame = new JFrame("Demo");
+					frame.setTitle("Dialog Box Example");
+			        frame.setSize(500,300);
+					//frame.setContentPane(new JPanel().add(new JLabel("hello")));
+					frame.pack();
+					frame.setVisible(true);*/
+					
+					sd.setVisible(true);
+					
+			        System.err.println("Jdialog...");
+				}
+				
+	        });
+			
+			return resultPanel;
+			
 			}
 		}
 		else{
@@ -221,7 +257,7 @@ public class BiomartConnectPlugin extends JPanel implements  SelectionListener, 
 		TableModel dataModel = new AbstractTableModel() {
 			 String[] columnNames= {"Attribute","Value"};
 	         
-	          public int getRowCount() { return 11;}
+	          public int getRowCount() { return m[0].length;}
 	          public Object getValueAt(int row, int col) { 
 	        	  return m[col][row]; 
 	          }
@@ -233,9 +269,9 @@ public class BiomartConnectPlugin extends JPanel implements  SelectionListener, 
 	          }
 	      };
 	      
+	      
 	      JTable table = new JTable(dataModel);
 	      JScrollPane scrollpane = new JScrollPane(table);
-	      
 		return scrollpane;
 	}
 	
@@ -315,7 +351,10 @@ public class BiomartConnectPlugin extends JPanel implements  SelectionListener, 
 		
 	}
 
-
+	private String[][] dialogToArray(String[][] m){
+		
+		return null;
+	}
 
 	@Override
 	public void gmmlObjectModified(PathwayElementEvent e) {
