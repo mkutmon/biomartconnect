@@ -26,8 +26,6 @@ import org.w3c.dom.ls.LSSerializer;
  * @author rohansaxena
  *
  */
-
-
 public class BiomartQueryService {
 
 	final private String geneId;

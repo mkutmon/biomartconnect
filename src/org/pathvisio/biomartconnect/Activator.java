@@ -6,7 +6,11 @@ import org.pathvisio.desktop.plugin.Plugin;
 import org.pathvisio.biomartconnect.impl.BiomartConnectPlugin;
 
 
-
+/**
+ * 
+ * @author rohan
+ *
+ */
 public class Activator implements BundleActivator {
 	
 	 private BiomartConnectPlugin plugin;
