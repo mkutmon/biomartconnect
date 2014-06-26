@@ -54,7 +54,7 @@ public class SettingsDialog extends JDialog {
 	
 	public final void initUI(){
 
-		JLabel title = new JLabel("Choose attributes...");
+		JLabel title = new JLabel("Choose attributes:");
 		setLayout(new BorderLayout());
 		
 		JPanel jp = new JPanel();
