@@ -1,10 +1,13 @@
-	package org.pathvisio.biomartconnect.impl;
+package org.pathvisio.biomartconnect.impl;
 
 import java.awt.BorderLayout;
+
 import java.awt.Checkbox;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.GridLayout;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.util.ArrayList;
 
 import javax.swing.BoxLayout;
@@ -29,8 +32,9 @@ public class SettingsDialog extends JDialog {
 	JCheckBox transcript_count;
 	JCheckBox percentage_gc_content;
 	JCheckBox status;
+	BiomartConnectPlugin bcp;
 	
-	public SettingsDialog(){
+	public SettingsDialog(BiomartConnectPlugin bcp){
 		
 		ensembl_gene_id = new JCheckBox("Ensembl Gene ID");
 		external_gene_id = new JCheckBox("External Gene ID");
@@ -43,6 +47,7 @@ public class SettingsDialog extends JDialog {
 		transcript_count = new JCheckBox("Transcript Count");
 		percentage_gc_content = new JCheckBox("%GC Content");
 		status = new JCheckBox("Status");
+		this.bcp = bcp;
 		
 		initUI();
 	}
@@ -75,7 +80,13 @@ public class SettingsDialog extends JDialog {
 		jp.add(percentage_gc_content);
 		jp.add(status);
 		
-		JButton applyButton = new JButton("Apply");		
+		JButton applyButton = new JButton("Apply");
+        applyButton.addActionListener(new ActionListener() {
+        	public void actionPerformed(ActionEvent e){
+				bcp.sendResult();
+			}
+        });
+        
 		JPanel southPanel = new JPanel();
 		southPanel.setLayout(new GridBagLayout());
 		GridBagConstraints con = new GridBagConstraints();
@@ -98,46 +109,45 @@ public class SettingsDialog extends JDialog {
 
 	}
 	
-	public Object[] selectedOptions() {
+	public ArrayList<String> selectedOptions() {
 		
 		ArrayList<String> temp = new ArrayList<String>();
-		int count = 0;
 		
 		if(ensembl_gene_id.isSelected()){
-			temp.add("ensembl_gene_id");
+			temp.add("Ensembl Gene ID");
 		}
 		if(external_gene_id.isSelected()){
-			temp.add("external_gene_id");
+			temp.add("Ensembl Gene ID");
 		}
 		if(description.isSelected()){
-			temp.add("description");
+			temp.add("Description");
 		}
 		if(chromosome_name.isSelected()){
-			temp.add("chromosome_name");
+			temp.add("Chromosome Name");
 		}
 		if(start_position.isSelected()){
-			temp.add("start_position");
+			temp.add("Gene Start (bp)");
 		}
 		if(end_position.isSelected()){
-			temp.add("end_position");
+			temp.add("Gene End (bp)");
 		}
 		if(strand.isSelected()){
-			temp.add("strand");
+			temp.add("Strand");
 		}
 		if(band.isSelected()){
-			temp.add("band");
+			temp.add("Band");
 		}
 		if(transcript_count.isSelected()){
-			temp.add("transcript_count");
+			temp.add("Transcript count");
 		}
 		if(percentage_gc_content.isSelected()){
-			temp.add("percentage_gc_content");
+			temp.add("% GC content");
 		}
 		if(status.isSelected()){
-			temp.add("status");
+			temp.add("Status (gene)");
 		}
 		
-		return temp.toArray();
+		return temp;
 	}
 
 }

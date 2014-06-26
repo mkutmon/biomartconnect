@@ -1,26 +1,22 @@
 package org.pathvisio.biomartconnect.impl;
 
-<<<<<<< HEAD
+
 import java.awt.BorderLayout;
 import java.awt.Container;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-=======
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
->>>>>>> 2ccb20607482e58a1fd44b5075f50a34aea16946
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 
-<<<<<<< HEAD
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
-=======
->>>>>>> 2ccb20607482e58a1fd44b5075f50a34aea16946
 import javax.swing.JComponent;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
@@ -30,6 +26,7 @@ import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.table.AbstractTableModel;
 import javax.swing.table.TableModel;
+import javax.swing.text.html.HTMLDocument.Iterator;
 
 import org.bridgedb.DataSource;
 import org.bridgedb.IDMapperException;
@@ -60,9 +57,10 @@ public class BiomartConnectPlugin extends JPanel implements  SelectionListener, 
 	private InfoRegistry registry;
 	private PvDesktop desktop;
 	private JPanel sidePanel;
-<<<<<<< HEAD
+
 	private SettingsDialog sd;
-	//private JPanel sidePanel1;
+	private JPanel resultPanel;
+	private String s;
 
 	
 	@Override
@@ -72,8 +70,7 @@ public class BiomartConnectPlugin extends JPanel implements  SelectionListener, 
 	}
 
 	
-=======
->>>>>>> 2ccb20607482e58a1fd44b5075f50a34aea16946
+
 	
 	@Override
 	public void init(PvDesktop desktop) {
@@ -83,8 +80,8 @@ public class BiomartConnectPlugin extends JPanel implements  SelectionListener, 
 		registry = InfoRegistry.getInfoRegistry();
 		registry.registerInfoProvider(this);
 		
-		sd = new SettingsDialog();
-		System.err.println(sd.selectedOptions());
+		sd = new SettingsDialog(this);
+		resultPanel = new JPanel();
 		
 		desktop.getSwingEngine().getEngine().addApplicationEventListener(this);
 		VPathway vp = desktop.getSwingEngine().getEngine().getActiveVPathway();
@@ -146,35 +143,15 @@ public class BiomartConnectPlugin extends JPanel implements  SelectionListener, 
 			Document result = BiomartQueryService.createQuery(set, attrs, identifierFilters);
 			
 			InputStream is = BiomartQueryService.getDataStream(result);
-			String s = getStringFromInputStream(is);
+			s = getStringFromInputStream(is);
 			if(s.equals("Invalid")){
 				return new JLabel ("No information returned.");
 			}
 			else{
 			//return arrayToTable(csvReader(s));
-			JPanel resultPanel = new JPanel();
-			resultPanel.setLayout(new BoxLayout(resultPanel,BoxLayout.Y_AXIS));
-			resultPanel.add(arrayToTable(csvReader(s)));
-			JButton settingsButton = new JButton("Settings");
-			resultPanel.add(settingsButton);
-			
-	        settingsButton.addActionListener(new ActionListener() {
 
-				public void actionPerformed(ActionEvent e){
-					/*new JPanel().add(new JLabel("hello"));
-					JFrame frame = new JFrame("Demo");
-					frame.setTitle("Dialog Box Example");
-			        frame.setSize(500,300);
-					//frame.setContentPane(new JPanel().add(new JLabel("hello")));
-					frame.pack();
-					frame.setVisible(true);*/
-					
-					sd.setVisible(true);
-					
-			        System.err.println("Jdialog...");
-				}
+				sendResult();
 				
-	        });
 			
 			return resultPanel;
 			
@@ -355,21 +332,54 @@ public class BiomartConnectPlugin extends JPanel implements  SelectionListener, 
 		}
 	}
 
-<<<<<<< HEAD
+
 	private String[][] dialogToArray(String[][] m){
 		
-		return null;
+		ArrayList<String> options = sd.selectedOptions();
+		ArrayList<String> temp_options = new ArrayList<String>();
+		ArrayList<String> val = new ArrayList<String>();
+					
+		for(int i=0; i < m[0].length; i++ ){
+			
+			if(options.contains(m[0][i])){
+				temp_options.add(m[0][i]);
+				val.add(m[1][i]);
+			}
+		}
+				
+		String[][] temp = {temp_options.toArray(new String[temp_options.size()]),val.toArray(new String[val.size()])};
+		
+		return (temp);
 	}
 
-=======
->>>>>>> 2ccb20607482e58a1fd44b5075f50a34aea16946
+		public void sendResult(){
+
+		resultPanel.removeAll();
+		resultPanel.setLayout(new BoxLayout(resultPanel,BoxLayout.Y_AXIS));	
+		resultPanel.add(arrayToTable(dialogToArray(csvReader(s))));
+		//resultPanel.add(arrayToTable(csvReader(s)));
+		JButton settingsButton = new JButton("Settings");
+		resultPanel.add(settingsButton);
+		
+		settingsButton.addActionListener(new ActionListener() {
+
+		public void actionPerformed(ActionEvent e){
+
+			sd.setVisible(true);
+			
+		}
+		
+    });
+		
+		resultPanel.revalidate();
+		resultPanel.repaint();
+
+
+	}
+	
 	@Override
 	public void gmmlObjectModified(PathwayElementEvent e) {
 
 	}
 
-	@Override
-	public void done() {
-		desktop.getSideBarTabbedPane().remove(sidePanel);
-	}
 }
