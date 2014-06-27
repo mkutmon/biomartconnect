@@ -2,6 +2,7 @@ package org.pathvisio.biomartconnect.impl;
 
 
 import java.awt.BorderLayout;
+import java.awt.Component;
 import java.awt.Container;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -361,6 +362,7 @@ public class BiomartConnectPlugin extends JPanel implements  SelectionListener, 
 		resultPanel.add(arrayToTable(dialogToArray(csvReader(s))));
 		//resultPanel.add(arrayToTable(csvReader(s)));
 		JButton settingsButton = new JButton("Settings");
+		settingsButton.setAlignmentX(Component.CENTER_ALIGNMENT);
 		resultPanel.add(settingsButton);
 		
 		settingsButton.addActionListener(new ActionListener() {

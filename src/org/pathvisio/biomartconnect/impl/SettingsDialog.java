@@ -1,8 +1,6 @@
 package org.pathvisio.biomartconnect.impl;
 
 import java.awt.BorderLayout;
-
-import java.awt.Checkbox;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.GridLayout;
@@ -10,14 +8,11 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
 
-import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JDialog;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
-
-import com.sun.xml.internal.bind.v2.schemagen.xmlschema.List;
 
 public class SettingsDialog extends JDialog {
 	
@@ -54,7 +49,7 @@ public class SettingsDialog extends JDialog {
 	
 	public final void initUI(){
 
-		JLabel title = new JLabel("Choose attributes...");
+		JLabel title = new JLabel("Choose attributes:");
 		setLayout(new BorderLayout());
 		
 		JPanel jp = new JPanel();
