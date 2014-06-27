@@ -244,6 +244,7 @@ public class GeneticVariationProvider extends JPanel implements IInfoProvider{
 		      
 		      
 		      JTable table = new JTable(dataModel);
+		     table.setAutoCreateRowSorter(true);
 		      JScrollPane scrollpane = new JScrollPane(table);
 			return scrollpane;
 		}
