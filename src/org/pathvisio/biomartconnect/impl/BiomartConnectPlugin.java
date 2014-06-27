@@ -68,7 +68,6 @@ public class BiomartConnectPlugin extends JPanel implements  SelectionListener, 
 		desktop.getSideBarTabbedPane().remove(sidePanel);
 		// TODO Auto-generated method stub
 	}
-
 	
 
 	
@@ -82,6 +81,8 @@ public class BiomartConnectPlugin extends JPanel implements  SelectionListener, 
 		
 		sd = new SettingsDialog(this);
 		resultPanel = new JPanel();
+		
+		new GeneticVariationProvider(registry,desktop,this);
 		
 		desktop.getSwingEngine().getEngine().addApplicationEventListener(this);
 		VPathway vp = desktop.getSwingEngine().getEngine().getActiveVPathway();
@@ -190,7 +191,7 @@ public class BiomartConnectPlugin extends JPanel implements  SelectionListener, 
 		}
 	}
 
-	private String getStringFromInputStream(InputStream is) {
+	public String getStringFromInputStream(InputStream is) {
 		 
 		int count = 0;
 		BufferedReader br = null;
@@ -226,6 +227,7 @@ public class BiomartConnectPlugin extends JPanel implements  SelectionListener, 
 	}
 	
 	private String[][] csvReader(String s) {
+		System.err.println(s);
 		String[] lines = s.split("\n");
 		String[] keys = lines[0].split("\t");
 		String[] values = lines[1].split("\t");
