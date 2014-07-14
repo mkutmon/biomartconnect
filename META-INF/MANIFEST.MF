@@ -4,11 +4,21 @@ Bundle-Name: org.pathvisio.biomartconnect
 Bundle-SymbolicName: org.pathvisio.biomartconnect
 Bundle-Version: 1.0.0
 Bundle-Activator: org.pathvisio.biomartconnect.Activator
+<<<<<<< HEAD
 Require-Bundle: org.pathvisio.core;bundle-version="3.2.0",
  org.pathvisio.desktop;bundle-version="3.2.0",
  org.pathvisio.gui;bundle-version="3.2.0"
+=======
+Bundle-ActivationPolicy: lazy
+>>>>>>> 24020c8f545f359018e5b0625bfa903b67946fd7
 Import-Package: org.bridgedb,
  org.bridgedb.bio,
  org.osgi.framework;version="1.3.0",
  org.pathvisio.inforegistry
+<<<<<<< HEAD
 Bundle-ActivationPolicy: lazy
+=======
+Require-Bundle: org.pathvisio.core;bundle-version="3.2.0",
+ org.pathvisio.desktop;bundle-version="3.2.0",
+ org.pathvisio.gui;bundle-version="3.2.0"
+>>>>>>> 24020c8f545f359018e5b0625bfa903b67946fd7
