@@ -1,39 +1,33 @@
 package org.pathvisio.biomartconnect.impl;
 
 import java.awt.BorderLayout;
-<<<<<<< HEAD
+
 import java.awt.FlowLayout;
-=======
->>>>>>> 24020c8f545f359018e5b0625bfa903b67946fd7
+
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
-<<<<<<< HEAD
+
 import java.util.Iterator;
 import java.util.Map;
-=======
->>>>>>> 24020c8f545f359018e5b0625bfa903b67946fd7
+
 
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JDialog;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
-<<<<<<< HEAD
+
 import javax.swing.JScrollPane;
 
 public class SettingsDialog extends JDialog {
 	Map<String,String> attr_map;
 	JCheckBox[] jc;
 	/*
-=======
 
-public class SettingsDialog extends JDialog {
-	
->>>>>>> 24020c8f545f359018e5b0625bfa903b67946fd7
 	JCheckBox ensembl_gene_id;
 	JCheckBox external_gene_id;
 	JCheckBox description;
@@ -45,18 +39,13 @@ public class SettingsDialog extends JDialog {
 	JCheckBox transcript_count;
 	JCheckBox percentage_gc_content;
 	JCheckBox status;
-<<<<<<< HEAD
+
 	*/
 	BiomartConnectPlugin bcp;
 	
 	public SettingsDialog(BiomartConnectPlugin bcp, Map<String,String> attr_map){
 /*		
-=======
-	BiomartConnectPlugin bcp;
-	
-	public SettingsDialog(BiomartConnectPlugin bcp){
-		
->>>>>>> 24020c8f545f359018e5b0625bfa903b67946fd7
+
 		ensembl_gene_id = new JCheckBox("Ensembl Gene ID");
 		external_gene_id = new JCheckBox("External Gene ID");
 		description = new JCheckBox("Description");
@@ -68,13 +57,11 @@ public class SettingsDialog extends JDialog {
 		transcript_count = new JCheckBox("Transcript Count");
 		percentage_gc_content = new JCheckBox("%GC Content");
 		status = new JCheckBox("Status");
-<<<<<<< HEAD
+
 		*/
 		this.bcp = bcp;
 		this.attr_map = attr_map;
-=======
-		this.bcp = bcp;
->>>>>>> 24020c8f545f359018e5b0625bfa903b67946fd7
+
 		
 		initUI();
 	}
@@ -85,7 +72,7 @@ public class SettingsDialog extends JDialog {
 		setLayout(new BorderLayout());
 		
 		JPanel jp = new JPanel();
-<<<<<<< HEAD
+
 		jp.setLayout(new GridLayout((attr_map.size()/4)+1,4));
 		
 		jc = new JCheckBox[attr_map.size()];
@@ -100,11 +87,7 @@ public class SettingsDialog extends JDialog {
 		}
 		
 /*		
-=======
-		jp.setLayout(new GridLayout(4,3));
-		
-		
->>>>>>> 24020c8f545f359018e5b0625bfa903b67946fd7
+
 		ensembl_gene_id.setSelected(true);
 		external_gene_id.setSelected(true);		
 		description.setSelected(true);
@@ -123,11 +106,9 @@ public class SettingsDialog extends JDialog {
 		jp.add(transcript_count);
 		jp.add(percentage_gc_content);
 		jp.add(status);
-<<<<<<< HEAD
+
 	*/	
-=======
-		
->>>>>>> 24020c8f545f359018e5b0625bfa903b67946fd7
+
 		JButton applyButton = new JButton("Apply");
         applyButton.addActionListener(new ActionListener() {
         	public void actionPerformed(ActionEvent e){
@@ -148,22 +129,18 @@ public class SettingsDialog extends JDialog {
 
 		//southPanel.add(applyButton,BorderLayout.CENTER);
 		add(southPanel,BorderLayout.SOUTH);
-<<<<<<< HEAD
+
 		JScrollPane scrollpane = new JScrollPane(jp,  JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
 		add(scrollpane,BorderLayout.CENTER);
-=======
-		add(jp,BorderLayout.CENTER);
->>>>>>> 24020c8f545f359018e5b0625bfa903b67946fd7
+
 		add(title,BorderLayout.NORTH);
         setTitle("BiomartConnect");
         setDefaultCloseOperation(DISPOSE_ON_CLOSE);
         setLocationRelativeTo(null);
-<<<<<<< HEAD
+
         setSize(450,330);
         
-=======
-        setSize(450, 330);
->>>>>>> 24020c8f545f359018e5b0625bfa903b67946fd7
+
 
 	}
 	
@@ -171,7 +148,7 @@ public class SettingsDialog extends JDialog {
 		
 		ArrayList<String> temp = new ArrayList<String>();
 		
-<<<<<<< HEAD
+
 		int i;
 		for(i=0;i<jc.length;i++){
 			if(jc[i].isSelected()){
@@ -180,9 +157,7 @@ public class SettingsDialog extends JDialog {
 		}
 		
 /*		if(ensembl_gene_id.isSelected()){
-=======
-		if(ensembl_gene_id.isSelected()){
->>>>>>> 24020c8f545f359018e5b0625bfa903b67946fd7
+
 			temp.add("Ensembl Gene ID");
 		}
 		if(external_gene_id.isSelected()){
@@ -215,11 +190,9 @@ public class SettingsDialog extends JDialog {
 		if(status.isSelected()){
 			temp.add("Status (gene)");
 		}
-<<<<<<< HEAD
+
 	*/	
-=======
-		
->>>>>>> 24020c8f545f359018e5b0625bfa903b67946fd7
+
 		return temp;
 	}
 
