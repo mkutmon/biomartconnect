@@ -1,13 +1,10 @@
 package org.pathvisio.biomartconnect.impl;
 
 
-<<<<<<< HEAD
-import java.awt.Component;
-=======
+
 import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.Container;
->>>>>>> 24020c8f545f359018e5b0625bfa903b67946fd7
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.BufferedReader;
@@ -17,33 +14,24 @@ import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
-<<<<<<< HEAD
+
 import java.util.Map;
-=======
->>>>>>> 24020c8f545f359018e5b0625bfa903b67946fd7
+
 import java.util.Set;
 
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
-<<<<<<< HEAD
-import javax.swing.JComponent;
-=======
+
 import javax.swing.JComboBox;
 import javax.swing.JComponent;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
->>>>>>> 24020c8f545f359018e5b0625bfa903b67946fd7
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.table.AbstractTableModel;
 import javax.swing.table.TableModel;
-<<<<<<< HEAD
-=======
-import javax.swing.text.html.HTMLDocument.Iterator;
->>>>>>> 24020c8f545f359018e5b0625bfa903b67946fd7
-
 import org.bridgedb.DataSource;
 import org.bridgedb.IDMapperException;
 import org.bridgedb.IDMapperStack;
@@ -62,11 +50,10 @@ import org.pathvisio.inforegistry.IInfoProvider;
 import org.pathvisio.inforegistry.InfoRegistry;
 import org.w3c.dom.Document;
 
-<<<<<<< HEAD
+
 import java.util.Iterator;
 
-=======
->>>>>>> 24020c8f545f359018e5b0625bfa903b67946fd7
+
 /**
  * 
  * @author rohansaxena
@@ -100,14 +87,9 @@ public class BiomartConnectPlugin extends JPanel implements  SelectionListener, 
 		registry = InfoRegistry.getInfoRegistry();
 		registry.registerInfoProvider(this);
 		
-<<<<<<< HEAD
+
 		//sd = new SettingsDialog(this,attr_map);
-		//resultPanel = new JPanel();
-=======
-		sd = new SettingsDialog(this);
-		resultPanel = new JPanel();
->>>>>>> 24020c8f545f359018e5b0625bfa903b67946fd7
-		
+		//resultPanel = new JPanel();		
 		new GeneticVariationProvider(registry,desktop,this);
 		
 		desktop.getSwingEngine().getEngine().addApplicationEventListener(this);
@@ -134,26 +116,19 @@ public class BiomartConnectPlugin extends JPanel implements  SelectionListener, 
 
 		if(desktop.getSwingEngine().getCurrentOrganism() == null)
 			return(new JLabel ("Organism not set for active pathway."));
-<<<<<<< HEAD
-		
-=======
-	
->>>>>>> 24020c8f545f359018e5b0625bfa903b67946fd7
+
 		Xref mapped = idMapper(xref);
 		if(mapped.getId().equals("")){
 			return(new JLabel ("This identifier cannot be mapped to Ensembl."));
 		}
 		if(BiomartQueryService.isInternetReachable())
 		{
-<<<<<<< HEAD
+
 			Map<String,String> attr_map;
-=======
->>>>>>> 24020c8f545f359018e5b0625bfa903b67946fd7
 			System.err.println("Internet is ok");
 
 			if(datasetMapper() != null){
 			set = datasetMapper();
-<<<<<<< HEAD
 			AttributesImporter ai = new AttributesImporter(set);
 			attr_map = ai.getAttributes();
 			sd = new SettingsDialog(this,attr_map);
@@ -161,8 +136,6 @@ public class BiomartConnectPlugin extends JPanel implements  SelectionListener, 
 			resultPanel = new JPanel();
 			System.err.println(attr_map.size());
 			System.err.println(attr_map);
-=======
->>>>>>> 24020c8f545f359018e5b0625bfa903b67946fd7
 			}
 			else{
 				return(new JLabel ("This organism is not supported by Ensembl."));
@@ -170,16 +143,14 @@ public class BiomartConnectPlugin extends JPanel implements  SelectionListener, 
 			
 			//TODO: move this to biomart basic class as properties!
 			Collection<String> attrs = new HashSet<String>();
-<<<<<<< HEAD
+
 			Iterator<String> it = attr_map.keySet().iterator();
 			while(it.hasNext()){
 				String temp = attr_map.get(it.next());
 				attrs.add(temp);
 			}
 	/*		attrs.add("ensembl_gene_id");
-=======
-			attrs.add("ensembl_gene_id");
->>>>>>> 24020c8f545f359018e5b0625bfa903b67946fd7
+
 			attrs.add("external_gene_id");
 			attrs.add("description");
 			attrs.add("chromosome_name");
@@ -190,11 +161,8 @@ public class BiomartConnectPlugin extends JPanel implements  SelectionListener, 
 			attrs.add("transcript_count");
 			attrs.add("percentage_gc_content");
 			attrs.add("status");
-<<<<<<< HEAD
 		*/	
-=======
-			
->>>>>>> 24020c8f545f359018e5b0625bfa903b67946fd7
+
 			Collection<String> identifierFilters = new HashSet<String>();
 			identifierFilters.add(mapped.getId().toString());
 			
