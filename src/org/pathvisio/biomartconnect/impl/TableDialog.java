@@ -13,6 +13,7 @@ import java.util.Map;
 
 
 
+
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JDialog;
@@ -21,6 +22,7 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
+import javax.swing.JTextField;
 
 public class TableDialog extends JDialog {
 
@@ -71,6 +73,10 @@ public class TableDialog extends JDialog {
 		setLayout(new BorderLayout());
 		
 		JPanel jp = new JPanel();
+		JTextField jtf = new JTextField();
+		JButton filter = new JButton("Filter");
+		jp.add(jtf);
+		jp.add(filter);
 		jp.add(jt);
 
 		

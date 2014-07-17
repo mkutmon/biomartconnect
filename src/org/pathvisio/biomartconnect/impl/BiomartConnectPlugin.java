@@ -260,7 +260,7 @@ public class BiomartConnectPlugin extends JPanel implements  SelectionListener, 
 		return(attr);
 	}
 	
-	private JScrollPane arrayToTable(final String[][] m) {
+	public JScrollPane arrayToTable(final String[][] m) {
 		
 		TableModel dataModel = new AbstractTableModel() {
 			 String[] columnNames= {"Attribute","Value"};

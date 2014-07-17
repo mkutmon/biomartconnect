@@ -1,5 +1,6 @@
 package org.pathvisio.biomartconnect.impl;
 
+import java.awt.Component;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.BufferedReader;
@@ -104,19 +105,24 @@ public class GeneticVariationProvider extends JPanel implements IInfoProvider{
 				System.err.println("20");
 				ArrayList<String []> temp = matrixFromInputStream(is);
 				System.err.println("30");
-				String temp_ensembl_gene_id=null;
-				String temp_associated_gene_name=null;
-				int temp_num_of_snp=0;
+				String[][] temp_arr = new String[2][3];
+				temp_arr[0][0]="Ensembl Gene ID";
+				temp_arr[0][1]="Associated Gene Name";
+				temp_arr[0][2]="No of SNPs";
+				temp_arr[1][0]=null;
+				temp_arr[1][1]=null;
+				temp_arr[1][2]=null;
+				//String temp_associated_gene_name=null;
 				for(int i=0;i<temp.get(0).length;i++){
 					if(temp.get(0)[i].equals("Ensembl Gene ID") ){
-						temp_ensembl_gene_id = temp.get(1)[i];
+						temp_arr[1][0] = temp.get(1)[i];
 					}
 					else if (temp.get(0)[i].equals("Associated Gene Name") ){
-						temp_associated_gene_name = temp.get(1)[i];
+						temp_arr[1][1] = temp.get(1)[i];
 					}
 						
 				}
-				temp_num_of_snp = temp.size()-1;
+				temp_arr[1][2] = String.valueOf((temp.size()-1));
 				System.err.println(temp.get(0)[0]);
 				if(temp.size() == 1){
 					return new JLabel ("No information returned.");
@@ -125,10 +131,12 @@ public class GeneticVariationProvider extends JPanel implements IInfoProvider{
 				System.err.println("I am here");
 				resultPanel.removeAll();
 				resultPanel.setLayout(new BoxLayout(resultPanel,BoxLayout.Y_AXIS));
-				resultPanel.add(new JLabel("Ensembl Gene ID: " + temp_ensembl_gene_id));
-				resultPanel.add(new JLabel("Associated Gene Name: " + temp_associated_gene_name));
-				resultPanel.add(new JLabel("Number of SNPs: " + temp_num_of_snp));
+				//resultPanel.add(new JLabel("Ensembl Gene ID: " + temp_ensembl_gene_id));
+				//resultPanel.add(new JLabel("Associated Gene Name: " + temp_associated_gene_name));
+				//resultPanel.add(new JLabel("Number of SNPs: " + temp_num_of_snp));
+				resultPanel.add((new BiomartConnectPlugin()).arrayToTable(temp_arr));
 				JButton show_table = new JButton("Show Table");
+				show_table.setAlignmentX(Component.CENTER_ALIGNMENT);
 				//show_table.setAlignmentX(CENTER_ALIGNMENT);
 				resultPanel.add(show_table);
 				TableDialog td = new TableDialog(this,arrayToTable(temp));
