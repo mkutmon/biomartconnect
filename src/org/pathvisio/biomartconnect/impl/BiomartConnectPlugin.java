@@ -42,7 +42,7 @@ public class BiomartConnectPlugin extends JPanel implements  SelectionListener, 
 		// registers plugin as information provider
 		registry = InfoRegistry.getInfoRegistry();
 		IInfoProvider basic = new BasicBiomartProvider(desktop);
-		IInfoProvider var = new BasicBiomartProvider(desktop);
+		IInfoProvider var = new GeneticVariationProvider(desktop);
 		registry.registerInfoProvider(basic);
 		registry.registerInfoProvider(var);
 		
