@@ -1,32 +1,31 @@
 package org.pathvisio.biomartconnect.impl;
+
 import java.awt.BorderLayout;
+
 import java.awt.FlowLayout;
+
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
+
 import java.util.Iterator;
 import java.util.Map;
-
-
-
 
 
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JDialog;
 import javax.swing.JLabel;
-import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+
 import javax.swing.JScrollPane;
-import javax.swing.JTable;
-import javax.swing.JTextField;
 
-public class TableDialog extends JDialog {
-
-	JScrollPane jt;
+public class TableSettingsDialog extends JDialog {
+	Map<String,String> attr_map;
+	JCheckBox[] jc;
 	/*
 
 	JCheckBox ensembl_gene_id;
@@ -43,9 +42,8 @@ public class TableDialog extends JDialog {
 
 	*/
 	GeneticVariationProvider bcp;
-	Map<String,String> attr_map;
-		
-	public TableDialog(GeneticVariationProvider bcp, JScrollPane jt,Map<String,String> attr_map){
+	
+	public TableSettingsDialog(GeneticVariationProvider bcp, Map<String,String> attr_map){
 /*		
 
 		ensembl_gene_id = new JCheckBox("Ensembl Gene ID");
@@ -62,7 +60,6 @@ public class TableDialog extends JDialog {
 
 		*/
 		this.bcp = bcp;
-		this.jt = jt;
 		this.attr_map = attr_map;
 
 		
@@ -71,16 +68,23 @@ public class TableDialog extends JDialog {
 	
 	public final void initUI(){
 
-		JLabel title = new JLabel("Variation Data Table");
+		JLabel title = new JLabel("Choose attributes:");
 		setLayout(new BorderLayout());
 		
 		JPanel jp = new JPanel();
-		JTextField jtf = new JTextField();
-		JButton filter = new JButton("Filter");
-		jp.add(jtf);
-		jp.add(filter);
-		jp.add(jt);
 
+		jp.setLayout(new GridLayout((attr_map.size()/4)+1,4));
+		
+		jc = new JCheckBox[attr_map.size()];
+		int temp_counter = 0;
+		Iterator<String> it = attr_map.keySet().iterator();
+		while(it.hasNext()){
+			String temp = it.next();
+			jc[temp_counter] = new JCheckBox(temp);
+			if(attr_map.get(temp).equals("ensembl_gene_id") || attr_map.get(temp).equals("external_gene_id") || attr_map.get(temp).equals("description") || attr_map.get(temp).equals("chromosome_name") || attr_map.get(temp).equals("start_position"))
+				jc[temp_counter].setSelected(true);
+			jp.add(jc[temp_counter++]);
+		}
 		
 /*		
 
@@ -105,14 +109,14 @@ public class TableDialog extends JDialog {
 
 	*/	
 
-/*		JButton applyButton = new JButton("Apply");
+		JButton applyButton = new JButton("Apply");
         applyButton.addActionListener(new ActionListener() {
         	public void actionPerformed(ActionEvent e){
 				bcp.sendResult();
 			}
         });
-  */      
-	/*	JPanel southPanel = new JPanel();
+        
+		JPanel southPanel = new JPanel();
 		southPanel.setLayout(new GridBagLayout());
 		GridBagConstraints con = new GridBagConstraints();
 		
@@ -121,26 +125,75 @@ public class TableDialog extends JDialog {
 		con.gridy = 0;
 		con.gridwidth = 3;
         southPanel.add(applyButton,con);
-		*/
+		
 
 		//southPanel.add(applyButton,BorderLayout.CENTER);
-		//add(southPanel,BorderLayout.SOUTH);
+		add(southPanel,BorderLayout.SOUTH);
 
 		JScrollPane scrollpane = new JScrollPane(jp,  JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
-		add(jt,BorderLayout.CENTER);
+		add(scrollpane,BorderLayout.CENTER);
 
 		add(title,BorderLayout.NORTH);
-        setTitle("Genetic Variation Data");
-        
-        TableSettingsDialog tsd = new TableSettingsDialog(bcp,attr_map);
-        JButton settings = new JButton("Settings");
-        add(settings,BorderLayout.SOUTH);
-        
+        setTitle("BiomartConnect");
         setDefaultCloseOperation(DISPOSE_ON_CLOSE);
         setLocationRelativeTo(null);
 
-        setSize(900,660);
+        setSize(450,330);
         
+
+
 	}
 	
+	public ArrayList<String> selectedOptions() {
+		
+		ArrayList<String> temp = new ArrayList<String>();
+		
+
+		int i;
+		for(i=0;i<jc.length;i++){
+			if(jc[i].isSelected()){
+				temp.add(jc[i].getText());
+			}
+		}
+		
+/*		if(ensembl_gene_id.isSelected()){
+
+			temp.add("Ensembl Gene ID");
+		}
+		if(external_gene_id.isSelected()){
+			temp.add("Ensembl Gene ID");
+		}
+		if(description.isSelected()){
+			temp.add("Description");
+		}
+		if(chromosome_name.isSelected()){
+			temp.add("Chromosome Name");
+		}
+		if(start_position.isSelected()){
+			temp.add("Gene Start (bp)");
+		}
+		if(end_position.isSelected()){
+			temp.add("Gene End (bp)");
+		}
+		if(strand.isSelected()){
+			temp.add("Strand");
+		}
+		if(band.isSelected()){
+			temp.add("Band");
+		}
+		if(transcript_count.isSelected()){
+			temp.add("Transcript count");
+		}
+		if(percentage_gc_content.isSelected()){
+			temp.add("% GC content");
+		}
+		if(status.isSelected()){
+			temp.add("Status (gene)");
+		}
+
+	*/	
+
+		return temp;
+	}
+
 }

@@ -8,9 +8,11 @@ import java.util.Map;
 public class AttributesImporter {
 	
 	String organism;
+	String identifier;
 	
-	public AttributesImporter(String organism){
+	public AttributesImporter(String organism,String identifier){
 		this.organism = organism;
+		this.identifier=identifier;
 	}
 	
 	public Map<String,String> getAttributes(){
@@ -48,7 +50,8 @@ public class AttributesImporter {
 			    System.err.println(temp[1]);
 			    System.err.println(temp[2]);
 			    System.err.println("hello");
-			    if(temp.length > 5 && temp[5].equals(organism + "__gene__main")){
+			    System.err.println(organism + identifier);
+			    if(temp.length > 5 && temp[5].equals(organism + identifier)){
 			    	attr_map.put(temp[1], temp[0]);
 			    }
 			}

@@ -10,6 +10,8 @@ import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.Iterator;
+import java.util.Map;
 import java.util.Set;
 
 import org.pathvisio.inforegistry.IInfoProvider;
@@ -74,28 +76,27 @@ public class GeneticVariationProvider extends JPanel implements IInfoProvider{
 		}
 			if(BiomartQueryService.isInternetReachable())
 			{
+				Map<String,String> attr_map;
 				System.err.println("Internet is ok");
 				if(datasetMapper() != null){
 				set = datasetMapper();
+				System.err.println(set.replace("_gene_ensembl", "_snp"));
+				AttributesImporter ai = new AttributesImporter(set.replace("_gene_ensembl", "_snp"),"__mart_transcript_variation__dm");
+				attr_map = ai.getAttributes();
 				}
 				else{
 					return(new JLabel ("This organism is not supported by Ensembl."));
 				}
 				
-				//TODO: move this to biomart basic class as properties!
 				Collection<String> attrs = new HashSet<String>();
-				attrs.add("ensembl_gene_id");
-				attrs.add("ensembl_transcript_id");
-				attrs.add("external_id");
-				attrs.add("external_gene_id");
-				attrs.add("allele");
-				attrs.add("minor_allele_freq");
-				attrs.add("transcript_location");
-				attrs.add("chromosome_location");
-				attrs.add("sift_prediction_2076");
-				attrs.add("polyphen_score_2076");
-				attrs.add("peptide_location");
+
+				Iterator<String> it = attr_map.keySet().iterator();
+				while(it.hasNext()){
+					String temp = attr_map.get(it.next());
+					attrs.add(temp);
+				}
 				
+				//TODO: move this to biomart basic class as properties!				
 				Collection<String> identifierFilters = new HashSet<String>();
 				identifierFilters.add(mapped.getId().toString());
 				
@@ -139,7 +140,7 @@ public class GeneticVariationProvider extends JPanel implements IInfoProvider{
 				show_table.setAlignmentX(Component.CENTER_ALIGNMENT);
 				//show_table.setAlignmentX(CENTER_ALIGNMENT);
 				resultPanel.add(show_table);
-				TableDialog td = new TableDialog(this,arrayToTable(temp));
+				TableDialog td = new TableDialog(this,arrayToTable(temp),attr_map);
 				//resultPanel.add(arrayToTable(temp));
 				show_table.addActionListener(new ActionListener() {
 
@@ -289,5 +290,10 @@ public class GeneticVariationProvider extends JPanel implements IInfoProvider{
 		     table.setAutoCreateRowSorter(true);
 		      JScrollPane scrollpane = new JScrollPane(table,  JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);		      
 			return scrollpane;
+		}
+
+		public void sendResult() {
+			// TODO Auto-generated method stub
+			
 		}
 }

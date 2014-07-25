@@ -129,7 +129,7 @@ public class BiomartConnectPlugin extends JPanel implements  SelectionListener, 
 
 			if(datasetMapper() != null){
 			set = datasetMapper();
-			AttributesImporter ai = new AttributesImporter(set);
+			AttributesImporter ai = new AttributesImporter(set,"__gene__main");
 			attr_map = ai.getAttributes();
 			sd = new SettingsDialog(this,attr_map);
 
