@@ -1,26 +1,20 @@
 package org.pathvisio.biomartconnect.impl;
 
 import java.awt.BorderLayout;
-
-import java.awt.FlowLayout;
-
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
-
 import java.util.Iterator;
 import java.util.Map;
-
 
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JDialog;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
-
 import javax.swing.JScrollPane;
 
 public class SettingsDialog extends JDialog {

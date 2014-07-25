@@ -1,27 +1,11 @@
 package org.pathvisio.biomartconnect.impl;
 import java.awt.BorderLayout;
-import java.awt.FlowLayout;
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
-import java.awt.GridLayout;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.Map;
-
-
-
-
 
 import javax.swing.JButton;
-import javax.swing.JCheckBox;
 import javax.swing.JDialog;
 import javax.swing.JLabel;
-import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
-import javax.swing.JTable;
 import javax.swing.JTextField;
 
 public class TableDialog extends JDialog {
@@ -125,7 +109,7 @@ public class TableDialog extends JDialog {
 		//add(southPanel,BorderLayout.SOUTH);
 
 		JScrollPane scrollpane = new JScrollPane(jp,  JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
-		add(jt,BorderLayout.CENTER);
+		add(scrollpane,BorderLayout.CENTER);
 
 		add(title,BorderLayout.NORTH);
         setTitle("Genetic Variation Data");

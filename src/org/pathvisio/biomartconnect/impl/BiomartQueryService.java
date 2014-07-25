@@ -27,15 +27,10 @@ import org.w3c.dom.ls.LSSerializer;
  *
  */
 public class BiomartQueryService {
-
-	final private String geneId;
 	private static int TIMEOUT_MS = 3000;
 	private static String biomart = "http://www.biomart.org/biomart/martservice/result?query=" ; 
 	
-	public BiomartQueryService(String g){
-		
-		this.geneId = g;
-	}
+	public BiomartQueryService() {}
 
 	public static boolean isInternetReachable() {
         return isInternetReachable("http://www.google.com");
@@ -52,7 +47,7 @@ public class BiomartQueryService {
                                 
             Logger.log.debug("URL: " + str_url + " Response code: " + urlConnect.getResponseCode());     		
     		
-            InputStream in = conn.getInputStream();            
+            conn.getInputStream();            
             
         } catch (IOException e) {
         	Logger.log.warn("FacetedSearch: " + str_url + " Is Not Reachable");

@@ -71,30 +71,30 @@ public class AttributesImporter {
 		return attr_map;
 	}
 	
-	private String[] lineParser(String line){
-		String[] temp = new String[3];
-		int i,start_index=0,counter = 0;
-		for(i=0;i<line.length();i++){
-			if(line.charAt(i) == '\t'){
-				counter++;
-				if(counter == 1){
-					temp[0] = line.substring(start_index,i);
-					start_index = i+1;
-				}
-				else if (counter == 2){
-					temp[1] = line.substring(start_index, i);
-					start_index = i+1;
-				}
-				else if (counter==6){
-					temp[2] = line.substring(start_index,i);
-				}
-				else{
-					start_index = i + 1;
-				}
-				
-			}
-		}
-		return temp;
-
-}
+//	private String[] lineParser(String line){
+//		String[] temp = new String[3];
+//		int i,start_index=0,counter = 0;
+//		for(i=0;i<line.length();i++){
+//			if(line.charAt(i) == '\t'){
+//				counter++;
+//				if(counter == 1){
+//					temp[0] = line.substring(start_index,i);
+//					start_index = i+1;
+//				}
+//				else if (counter == 2){
+//					temp[1] = line.substring(start_index, i);
+//					start_index = i+1;
+//				}
+//				else if (counter==6){
+//					temp[2] = line.substring(start_index,i);
+//				}
+//				else{
+//					start_index = i + 1;
+//				}
+//				
+//			}
+//		}
+//		return temp;
+//
+//	}
 }
