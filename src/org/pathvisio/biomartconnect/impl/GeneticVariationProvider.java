@@ -30,7 +30,6 @@ import org.bridgedb.Xref;
 import org.pathvisio.core.model.DataNodeType;
 import org.pathvisio.desktop.PvDesktop;
 import org.pathvisio.inforegistry.IInfoProvider;
-import org.pathvisio.inforegistry.InfoRegistry;
 import org.w3c.dom.Document;
 
 public class GeneticVariationProvider extends JPanel implements IInfoProvider{
@@ -38,9 +37,7 @@ public class GeneticVariationProvider extends JPanel implements IInfoProvider{
 	private PvDesktop desktop;
 	private JComponent resultPanel;
 	
-	public GeneticVariationProvider(InfoRegistry registry, PvDesktop desktop) {
-		
-		registry.registerInfoProvider(this);
+	public GeneticVariationProvider(PvDesktop desktop) {
 		this.desktop = desktop;
 		resultPanel = new JPanel();
 	}
@@ -122,7 +119,7 @@ public class GeneticVariationProvider extends JPanel implements IInfoProvider{
 						//resultPanel.add(new JLabel("Ensembl Gene ID: " + temp_ensembl_gene_id));
 						//resultPanel.add(new JLabel("Associated Gene Name: " + temp_associated_gene_name));
 						//resultPanel.add(new JLabel("Number of SNPs: " + temp_num_of_snp));
-						resultPanel.add((new BiomartConnectPlugin()).arrayToTable(temp_arr));
+						resultPanel.add(Utils.arrayToTable(temp_arr));
 						JButton show_table = new JButton("Show Table");
 						show_table.setAlignmentX(Component.CENTER_ALIGNMENT);
 						//show_table.setAlignmentX(CENTER_ALIGNMENT);

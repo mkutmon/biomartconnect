@@ -18,6 +18,7 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 
 public class SettingsDialog extends JDialog {
+	
 	Map<String,String> attr_map;
 	JCheckBox[] jc;
 	/*
@@ -35,9 +36,9 @@ public class SettingsDialog extends JDialog {
 	JCheckBox status;
 
 	*/
-	BiomartConnectPlugin bcp;
+	BasicBiomartProvider bcp;
 	
-	public SettingsDialog(BiomartConnectPlugin bcp, Map<String,String> attr_map){
+	public SettingsDialog(BasicBiomartProvider bcp, Map<String,String> attr_map){
 /*		
 
 		ensembl_gene_id = new JCheckBox("Ensembl Gene ID");
