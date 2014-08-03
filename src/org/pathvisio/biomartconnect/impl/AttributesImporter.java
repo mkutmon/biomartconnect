@@ -45,11 +45,6 @@ public class AttributesImporter {
 			    //System.err.println(inputLine);
 			    //System.err.println(inputLine.length());
 			    String [] temp = inputLine.split("\t");
-			    System.err.println("********** ******** *********");
-			    System.err.println(temp[0]);
-			    System.err.println(temp[1]);
-			    System.err.println(temp[2]);
-			    System.err.println("hello");
 			    System.err.println(organism + identifier);
 			    if(temp.length > 5 && temp[5].equals(organism + identifier)){
 			    	attr_map.put(temp[1], temp[0]);

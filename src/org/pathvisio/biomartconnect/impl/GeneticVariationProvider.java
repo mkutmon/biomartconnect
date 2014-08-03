@@ -134,7 +134,7 @@ public class GeneticVariationProvider extends JPanel implements IInfoProvider{
 						//resultPanel.add(new JLabel("Ensembl Gene ID: " + temp_ensembl_gene_id));
 						//resultPanel.add(new JLabel("Associated Gene Name: " + temp_associated_gene_name));
 						//resultPanel.add(new JLabel("Number of SNPs: " + temp_num_of_snp));
-						resultPanel.add((new BiomartConnectPlugin()).arrayToTable(temp_arr));
+						resultPanel.add((Utils.arrayToTable(temp_arr)));
 						JButton show_table = new JButton("Show Table");
 						show_table.setAlignmentX(Component.CENTER_ALIGNMENT);
 						//show_table.setAlignmentX(CENTER_ALIGNMENT);
@@ -224,8 +224,10 @@ public class GeneticVariationProvider extends JPanel implements IInfoProvider{
 			BorderLayout layout = (BorderLayout) jp.getLayout();
 			jp.remove(layout.getLayoutComponent(BorderLayout.CENTER));
 			JTable temp_table = arrayToTempTable(temp);
+			temp_table.setDefaultRenderer(Object.class, new Renderer());
 			for(int i=0;i<attr.size();i++){
 				temp_table.removeColumn(temp_table.getColumn(attr.get(i)));
+				
 			}			
 			jp.add(tempTableToTable(temp_table),BorderLayout.CENTER);			
 			
@@ -254,7 +256,7 @@ public class GeneticVariationProvider extends JPanel implements IInfoProvider{
 		      
 		      TableRowSorter<TableModel> sorter = new TableRowSorter<TableModel>(dataModel);
 		      JTable table = new JTable(dataModel);
-		      table.setDefaultRenderer(Object.class, new Renderer(dataModel));
+		      table.setDefaultRenderer(Object.class, new Renderer());
 		      table.setRowSorter(sorter); 	
 		      //table.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
 		      table.setAutoCreateRowSorter(true);

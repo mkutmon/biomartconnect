@@ -3,6 +3,11 @@ package org.pathvisio.biomartconnect.impl;
 import java.util.HashMap;
 import java.util.Map;
 
+import javax.swing.JScrollPane;
+import javax.swing.JTable;
+import javax.swing.table.AbstractTableModel;
+import javax.swing.table.TableModel;
+
 public class Utils {
 	
 	/**
@@ -41,4 +46,34 @@ public class Utils {
 		}
 		return null;
 	}
+	
+
+	public static JScrollPane arrayToTable(final String[][] m) {
+
+		TableModel dataModel = new AbstractTableModel() {
+			String[] columnNames = { "Attribute", "Value" };
+
+			public int getRowCount() {
+				return m[0].length;
+			}
+
+			public Object getValueAt(int row, int col) {
+				return m[col][row];
+			}
+
+			public String getColumnName(int column) {
+				return columnNames[column];
+			}
+
+			public int getColumnCount() {
+				return columnNames.length;
+			}
+		};
+
+		JTable table = new JTable(dataModel);
+		JScrollPane scrollpane = new JScrollPane(table);
+		return scrollpane;
+	}
+	
+	
 }
