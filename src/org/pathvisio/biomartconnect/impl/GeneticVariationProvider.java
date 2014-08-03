@@ -1,6 +1,8 @@
 package org.pathvisio.biomartconnect.impl;
 
+import java.awt.BorderLayout;
 import java.awt.Component;
+import java.awt.LayoutManager;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.BufferedReader;
@@ -11,11 +13,9 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
-
-import org.pathvisio.inforegistry.IInfoProvider;
-import org.pathvisio.inforegistry.InfoRegistry;
 
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
@@ -25,6 +25,7 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.table.AbstractTableModel;
+import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableModel;
 import javax.swing.table.TableRowSorter;
 
@@ -34,20 +35,21 @@ import org.bridgedb.IDMapperStack;
 import org.bridgedb.Xref;
 import org.pathvisio.core.model.DataNodeType;
 import org.pathvisio.desktop.PvDesktop;
+import org.pathvisio.inforegistry.IInfoProvider;
+import org.pathvisio.inforegistry.InfoRegistry;
 import org.w3c.dom.Document;
 
 public class GeneticVariationProvider extends JPanel implements IInfoProvider{
 
 	private PvDesktop desktop;
-	private BiomartConnectPlugin bcp;
-	private String s;
 	private JComponent resultPanel;
+	private ArrayList<String []> temp = null;
+	private TableModel dataModel = null;
 	
-	public GeneticVariationProvider(InfoRegistry registry, PvDesktop desktop, BiomartConnectPlugin bcp) {
+	public GeneticVariationProvider(InfoRegistry registry, PvDesktop desktop) {
 		
 		registry.registerInfoProvider(this);
 		this.desktop = desktop;
-		this.bcp = bcp;
 		resultPanel = new JPanel();
 	}
 	
@@ -64,8 +66,6 @@ public class GeneticVariationProvider extends JPanel implements IInfoProvider{
 	}
 	
 	public JComponent getInformation(Xref xref){
-
-		String set;
 		if(desktop.getSwingEngine().getCurrentOrganism() == null)
 			return(new JLabel ("Organism not set for active pathway."));
 	
@@ -76,86 +76,83 @@ public class GeneticVariationProvider extends JPanel implements IInfoProvider{
 		}
 			if(BiomartQueryService.isInternetReachable())
 			{
-				Map<String,String> attr_map;
+				String [] attr = {"Associated Gene Name","Ensembl Gene ID","Ensembl Gene ID","PolyPhen prediction","PolyPhen score","SIFT prediction","SIFT score","Protein location (aa)","Reference ID","Minor allele frequency","Chromosome Location (bp)","Transcript location (bp)","Variant Alleles","Ensembl Transcript ID"};
 				System.err.println("Internet is ok");
-				if(datasetMapper() != null){
-				set = datasetMapper();
-				System.err.println(set.replace("_gene_ensembl", "_snp"));
-				AttributesImporter ai = new AttributesImporter(set.replace("_gene_ensembl", "_snp"),"__mart_transcript_variation__dm");
-				attr_map = ai.getAttributes();
-				}
-				else{
-					return(new JLabel ("This organism is not supported by Ensembl."));
-				}
-				
-				Collection<String> attrs = new HashSet<String>();
 
-				Iterator<String> it = attr_map.keySet().iterator();
-				while(it.hasNext()){
-					String temp = attr_map.get(it.next());
-					attrs.add(temp);
-				}
-				
-				//TODO: move this to biomart basic class as properties!				
-				Collection<String> identifierFilters = new HashSet<String>();
-				identifierFilters.add(mapped.getId().toString());
-				
-				Document result = BiomartQueryService.createQuery(set, attrs, identifierFilters);
-				System.err.println("10");
-				InputStream is = BiomartQueryService.getDataStream(result);
-				System.err.println("20");
-				ArrayList<String []> temp = matrixFromInputStream(is);
-				System.err.println("30");
-				String[][] temp_arr = new String[2][3];
-				temp_arr[0][0]="Ensembl Gene ID";
-				temp_arr[0][1]="Associated Gene Name";
-				temp_arr[0][2]="No of SNPs";
-				temp_arr[1][0]=null;
-				temp_arr[1][1]=null;
-				temp_arr[1][2]=null;
-				//String temp_associated_gene_name=null;
-				for(int i=0;i<temp.get(0).length;i++){
-					if(temp.get(0)[i].equals("Ensembl Gene ID") ){
-						temp_arr[1][0] = temp.get(1)[i];
-					}
-					else if (temp.get(0)[i].equals("Associated Gene Name") ){
-						temp_arr[1][1] = temp.get(1)[i];
-					}
-						
-				}
-				temp_arr[1][2] = String.valueOf((temp.size()-1));
-				System.err.println(temp.get(0)[0]);
-				if(temp.size() == 1){
-					return new JLabel ("No information returned.");
-				}
-				else{
-				System.err.println("I am here");
-				resultPanel.removeAll();
-				resultPanel.setLayout(new BoxLayout(resultPanel,BoxLayout.Y_AXIS));
-				//resultPanel.add(new JLabel("Ensembl Gene ID: " + temp_ensembl_gene_id));
-				//resultPanel.add(new JLabel("Associated Gene Name: " + temp_associated_gene_name));
-				//resultPanel.add(new JLabel("Number of SNPs: " + temp_num_of_snp));
-				resultPanel.add((new BiomartConnectPlugin()).arrayToTable(temp_arr));
-				JButton show_table = new JButton("Show Table");
-				show_table.setAlignmentX(Component.CENTER_ALIGNMENT);
-				//show_table.setAlignmentX(CENTER_ALIGNMENT);
-				resultPanel.add(show_table);
-				TableDialog td = new TableDialog(this,arrayToTable(temp),attr_map);
-				//resultPanel.add(arrayToTable(temp));
-				show_table.addActionListener(new ActionListener() {
-
-					public void actionPerformed(ActionEvent e){
-
-						td.setVisible(true);
-						
-					}
+				String organsim = Utils.mapOrganism(desktop.getSwingEngine().getCurrentOrganism().toString());
+				if(organsim != null){
+					//TODO: move this to biomart basic class as properties!
+					Collection<String> attrs = new HashSet<String>();
+					attrs.add("ensembl_gene_id");
+					attrs.add("ensembl_transcript_id");
+					attrs.add("external_id");
+					attrs.add("external_gene_id");
+					attrs.add("allele");
+					attrs.add("minor_allele_freq");
+					attrs.add("transcript_location");
+					attrs.add("chromosome_location");
+					attrs.add("sift_prediction_2076");
+					attrs.add("sift_score_2076");
+					attrs.add("polyphen_prediction_2076");
+					attrs.add("polyphen_score_2076");
+					attrs.add("peptide_location");
 					
-			    });
-				return resultPanel;
-								
-				}
-			}
-			else{				
+					Collection<String> identifierFilters = new HashSet<String>();
+					identifierFilters.add(mapped.getId().toString());
+					
+					Document result = BiomartQueryService.createQuery(organsim, attrs, identifierFilters);
+					System.err.println("10");
+					InputStream is = BiomartQueryService.getDataStream(result);
+					System.err.println("20");
+					temp = matrixFromInputStream(is);
+					System.err.println("30");
+					String[][] temp_arr = new String[2][3];
+					temp_arr[0][0]="Ensembl Gene ID";
+					temp_arr[0][1]="Associated Gene Name";
+					temp_arr[0][2]="No of SNPs";
+					temp_arr[1][0]=null;
+					temp_arr[1][1]=null;
+					temp_arr[1][2]=null;
+					//String temp_associated_gene_name=null;
+					
+					for(int i=0;i<temp.get(0).length;i++) {
+						if(temp.get(0)[i].equals("Ensembl Gene ID") ){
+							temp_arr[1][0] = temp.get(1)[i];
+						} else if (temp.get(0)[i].equals("Associated Gene Name") ){
+							temp_arr[1][1] = temp.get(1)[i];
+						}	
+					}
+					temp_arr[1][2] = String.valueOf((temp.size()-1));
+					System.err.println(temp.get(0)[0]);
+					
+					if(temp.size() == 1){
+						return new JLabel ("No information returned.");
+					} else{
+						System.err.println("I am here");
+						resultPanel.removeAll();
+						resultPanel.setLayout(new BoxLayout(resultPanel,BoxLayout.Y_AXIS));
+						//resultPanel.add(new JLabel("Ensembl Gene ID: " + temp_ensembl_gene_id));
+						//resultPanel.add(new JLabel("Associated Gene Name: " + temp_associated_gene_name));
+						//resultPanel.add(new JLabel("Number of SNPs: " + temp_num_of_snp));
+						resultPanel.add((new BiomartConnectPlugin()).arrayToTable(temp_arr));
+						JButton show_table = new JButton("Show Table");
+						show_table.setAlignmentX(Component.CENTER_ALIGNMENT);
+						//show_table.setAlignmentX(CENTER_ALIGNMENT);
+						resultPanel.add(show_table);
+						final TableDialog td = new TableDialog(this,arrayToTable(temp),attr);
+						//resultPanel.add(arrayToTable(temp));
+						show_table.addActionListener(new ActionListener() {
+							public void actionPerformed(ActionEvent e){
+								td.setVisible(true);
+							}
+							
+					    });
+						return resultPanel;			
+					}
+				} else{
+					return(new JLabel ("This organism is not supported by Ensembl."));
+				}			
+			} else {				
 				System.err.println("Internet not working");
 				JLabel jl = new JLabel ("Error: Cannot connect to the internet.");
 				jl.setHorizontalAlignment(JLabel.RIGHT);
@@ -184,55 +181,6 @@ public class GeneticVariationProvider extends JPanel implements IInfoProvider{
 					return (new Xref("",null));
 				else
 					return (result.iterator().next());
-			}
-		}
-		
-		private String datasetMapper(){
-			switch (desktop.getSwingEngine().getCurrentOrganism().toString()) {
-				case"AnophelesGambiae": return null;
-				case"ArabidopsisThaliana": return null;
-				case"Aspergillusniger": return null;
-				case"BacillusSubtilis": return null;
-				case"BosTaurus": return "btaurus_gene_ensembl";
-				case"CaenorhabditisElegans": return "celegans_gene_ensembl";
-				case"CanisFamiliaris": return "cfamiliaris_gene_ensembl";		
-				case"CionaIntestinalis": return null;
-				case"Clostridiumthermocellum": return null;
-				case"DanioRerio": return "drerio_gene_ensembl";
-				case"DasypusNovemcinctus": return "dnovemcinctus_gene_ensembl";
-				case"DrosophilaMelanogaster": return "dmelanogaster_gene_ensembl";		
-				case"EscherichiaColi": return null;
-				case"EchinposTelfairi": return "etelfairi_gene_ensembl";
-				case"EquusCaballus": return "ecaballus_gene_ensembl";	
-				case"GallusGallus": return "ggallus_gene_ensembl";
-				case"GlycineMax": return null;
-				case"GibberellaZeae": return null;		
-				case"HomoSapiens": return "hsapiens_gene_ensembl";
-				case"LoxodontaAfricana": return "lafricana_gene_ensembl";
-				case"MacacaMulatta": return "mmulatta_gene_ensembl";	
-				case"MusMusculus": return "mmusculus_gene_ensembl";
-				case"MonodelphisDomestica": return "mdomestica_gene_ensembl";
-				case"MycobacteriumTuberculosis": return null;
-				case"OrnithorhynchusAnatinus": return "oanatinus_gene_ensembl";
-				case"OryzaSativa": return null;
-				case"OryzaJaponica": return null;
-				case"OryzaSativaJaponica": return null;
-				case"OryziasLatipes": return "olatipes_gene_ensembl";
-				case"OryctolagusCuniculus": return "ocuniculus_gene_ensembl";
-				case"PanTroglodytes": return "ptroglodytes_gene_ensembl";
-				case"SolanumLycopersicum": return null;
-				case"SusScrofa": return "sscrofa_gene_ensembl";
-				case"PopulusTrichocarpa": return null;
-				case"RattusNorvegicus": return "rnorvegicus_gene_ensembl";
-				case"SaccharomycesCerevisiae": return "scerevisiae_gene_ensembl";
-				case"SorexAraneus": return "saraneus_gene_ensembl";	
-				case"SorghumBicolor": return null;
-				case"TetraodonNigroviridis": return "tnigroviridis_gene_ensembl";		
-				case"TriticumAestivum": return null;
-				case"XenopusTropicalis": return "xtropicalis_gene_ensembl";
-				case"VitisVinifera": return null;
-				case"ZeaMays": return null;
-				default: return null;
 			}
 		}
 		
@@ -268,7 +216,27 @@ public class GeneticVariationProvider extends JPanel implements IInfoProvider{
 		
 		private JScrollPane arrayToTable(final ArrayList<String []> m ) {
 			
-			TableModel dataModel = new AbstractTableModel() {
+			return tempTableToTable(arrayToTempTable(m));  
+		}
+
+		public void sendResult(JPanel jp,List<String> attr) {
+			
+			BorderLayout layout = (BorderLayout) jp.getLayout();
+			jp.remove(layout.getLayoutComponent(BorderLayout.CENTER));
+			JTable temp_table = arrayToTempTable(temp);
+			for(int i=0;i<attr.size();i++){
+				temp_table.removeColumn(temp_table.getColumn(attr.get(i)));
+			}			
+			jp.add(tempTableToTable(temp_table),BorderLayout.CENTER);			
+			
+			jp.revalidate();
+			jp.repaint();
+		}
+		
+		
+		private JTable arrayToTempTable(final ArrayList<String []> m ){
+	
+			dataModel = new AbstractTableModel() {
 				 String[] columnNames= m.get(0);
 		          
 		          public int getRowCount() { return (m.size()-1);}
@@ -281,19 +249,22 @@ public class GeneticVariationProvider extends JPanel implements IInfoProvider{
 		          public int getColumnCount(){
 		              return columnNames.length;
 		          }
+		          
 		      };
 		      
 		      TableRowSorter<TableModel> sorter = new TableRowSorter<TableModel>(dataModel);
 		      JTable table = new JTable(dataModel);
+		      table.setDefaultRenderer(Object.class, new Renderer(dataModel));
 		      table.setRowSorter(sorter); 	
-		      table.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
-		     table.setAutoCreateRowSorter(true);
+		      //table.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
+		      table.setAutoCreateRowSorter(true);
+			return table;
+			
+		}
+		
+		private JScrollPane tempTableToTable(JTable table){
 		      JScrollPane scrollpane = new JScrollPane(table,  JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);		      
 			return scrollpane;
 		}
-
-		public void sendResult() {
-			// TODO Auto-generated method stub
-			
-		}
+		
 }

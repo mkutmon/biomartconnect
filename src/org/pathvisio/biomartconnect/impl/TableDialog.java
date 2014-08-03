@@ -1,27 +1,16 @@
 package org.pathvisio.biomartconnect.impl;
 import java.awt.BorderLayout;
-import java.awt.FlowLayout;
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
-import java.awt.GridLayout;
+import java.awt.Component;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.Map;
 
-
-
-
-
+import javax.swing.BoxLayout;
 import javax.swing.JButton;
-import javax.swing.JCheckBox;
 import javax.swing.JDialog;
 import javax.swing.JLabel;
-import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
-import javax.swing.JTable;
 import javax.swing.JTextField;
 
 public class TableDialog extends JDialog {
@@ -43,9 +32,9 @@ public class TableDialog extends JDialog {
 
 	*/
 	GeneticVariationProvider bcp;
-	Map<String,String> attr_map;
+	String [] attr;
 		
-	public TableDialog(GeneticVariationProvider bcp, JScrollPane jt,Map<String,String> attr_map){
+	public TableDialog(GeneticVariationProvider bcp, JScrollPane jt, String [] attr){
 /*		
 
 		ensembl_gene_id = new JCheckBox("Ensembl Gene ID");
@@ -63,7 +52,7 @@ public class TableDialog extends JDialog {
 		*/
 		this.bcp = bcp;
 		this.jt = jt;
-		this.attr_map = attr_map;
+		this.attr = attr;
 
 		
 		initUI();
@@ -72,15 +61,8 @@ public class TableDialog extends JDialog {
 	public final void initUI(){
 
 		JLabel title = new JLabel("Variation Data Table");
-		setLayout(new BorderLayout());
-		
-		JPanel jp = new JPanel();
-		JTextField jtf = new JTextField();
-		JButton filter = new JButton("Filter");
-		jp.add(jtf);
-		jp.add(filter);
-		jp.add(jt);
-
+		JPanel master = new JPanel();
+		master.setLayout(new BorderLayout());
 		
 /*		
 
@@ -126,15 +108,31 @@ public class TableDialog extends JDialog {
 		//southPanel.add(applyButton,BorderLayout.CENTER);
 		//add(southPanel,BorderLayout.SOUTH);
 
-		JScrollPane scrollpane = new JScrollPane(jp,  JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
-		add(jt,BorderLayout.CENTER);
-
-		add(title,BorderLayout.NORTH);
-        setTitle("Genetic Variation Data");
+		master.add(title,BorderLayout.NORTH);
+		
+		JScrollPane scrollpane = new JScrollPane(jt,  JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+		master.add(scrollpane,BorderLayout.CENTER);
         
-        TableSettingsDialog tsd = new TableSettingsDialog(bcp,attr_map);
+        TableSettingsDialog tsd = new TableSettingsDialog(bcp,attr,master,scrollpane);
         JButton settings = new JButton("Settings");
-        add(settings,BorderLayout.SOUTH);
+        settings.setAlignmentX(Component.CENTER_ALIGNMENT);
+        
+		settings.addActionListener(new ActionListener() {
+
+		public void actionPerformed(ActionEvent e){
+
+			tsd.setVisible(true);
+			
+		}
+		
+    });
+        
+        JPanel southPanel = new JPanel();
+        southPanel.setLayout(new BoxLayout(southPanel, BoxLayout.PAGE_AXIS));
+        southPanel.add(settings);
+        master.add(southPanel,BorderLayout.SOUTH);
+        
+        add(master);
         
         setDefaultCloseOperation(DISPOSE_ON_CLOSE);
         setLocationRelativeTo(null);

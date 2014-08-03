@@ -2,9 +2,7 @@ package org.pathvisio.biomartconnect.impl;
 
 
 
-import java.awt.BorderLayout;
 import java.awt.Component;
-import java.awt.Container;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.BufferedReader;
@@ -14,24 +12,20 @@ import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
-
+import java.util.Iterator;
 import java.util.Map;
-
 import java.util.Set;
 
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
-
-import javax.swing.JComboBox;
 import javax.swing.JComponent;
-import javax.swing.JDialog;
-import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.table.AbstractTableModel;
 import javax.swing.table.TableModel;
+
 import org.bridgedb.DataSource;
 import org.bridgedb.IDMapperException;
 import org.bridgedb.IDMapperStack;
@@ -49,9 +43,6 @@ import org.pathvisio.desktop.plugin.Plugin;
 import org.pathvisio.inforegistry.IInfoProvider;
 import org.pathvisio.inforegistry.InfoRegistry;
 import org.w3c.dom.Document;
-
-
-import java.util.Iterator;
 
 
 /**
@@ -90,7 +81,7 @@ public class BiomartConnectPlugin extends JPanel implements  SelectionListener, 
 
 		//sd = new SettingsDialog(this,attr_map);
 		//resultPanel = new JPanel();		
-		new GeneticVariationProvider(registry,desktop,this);
+		new GeneticVariationProvider(registry,desktop);
 		
 		desktop.getSwingEngine().getEngine().addApplicationEventListener(this);
 		VPathway vp = desktop.getSwingEngine().getEngine().getActiveVPathway();
@@ -110,9 +101,7 @@ public class BiomartConnectPlugin extends JPanel implements  SelectionListener, 
 		return s;
 	}
 	
-	public JComponent getInformation(Xref xref){
-
-		String set;
+	public JComponent getInformation(Xref xref) {
 
 		if(desktop.getSwingEngine().getCurrentOrganism() == null)
 			return(new JLabel ("Organism not set for active pathway."));
@@ -121,70 +110,68 @@ public class BiomartConnectPlugin extends JPanel implements  SelectionListener, 
 		if(mapped.getId().equals("")){
 			return(new JLabel ("This identifier cannot be mapped to Ensembl."));
 		}
-		if(BiomartQueryService.isInternetReachable())
-		{
+		if(BiomartQueryService.isInternetReachable()) {
 
 			Map<String,String> attr_map;
 			System.err.println("Internet is ok");
 
-			if(datasetMapper() != null){
-			set = datasetMapper();
-			AttributesImporter ai = new AttributesImporter(set,"__gene__main");
-			attr_map = ai.getAttributes();
-			sd = new SettingsDialog(this,attr_map);
-
-			resultPanel = new JPanel();
-			System.err.println(attr_map.size());
-			System.err.println(attr_map);
-			}
-			else{
-				return(new JLabel ("This organism is not supported by Ensembl."));
-			}
-			
-			//TODO: move this to biomart basic class as properties!
-			Collection<String> attrs = new HashSet<String>();
-
-			Iterator<String> it = attr_map.keySet().iterator();
-			while(it.hasNext()){
-				String temp = attr_map.get(it.next());
-				attrs.add(temp);
-			}
-	/*		attrs.add("ensembl_gene_id");
-
-			attrs.add("external_gene_id");
-			attrs.add("description");
-			attrs.add("chromosome_name");
-			attrs.add("start_position");
-			attrs.add("end_position");
-			attrs.add("strand");
-			attrs.add("band");
-			attrs.add("transcript_count");
-			attrs.add("percentage_gc_content");
-			attrs.add("status");
-		*/	
-
-			Collection<String> identifierFilters = new HashSet<String>();
-			identifierFilters.add(mapped.getId().toString());
-			
-			Document result = BiomartQueryService.createQuery(set, attrs, identifierFilters);
-			
-			InputStream is = BiomartQueryService.getDataStream(result);
-			s = getStringFromInputStream(is);
-			if(s.equals("Invalid")){
-				return new JLabel ("No information returned.");
-			}
-			else{
-			//return arrayToTable(csvReader(s));
-
-				sendResult();
+			String organism = Utils.mapOrganism(desktop.getSwingEngine().getCurrentOrganism().toString());
+			if(organism != null) {
+				AttributesImporter ai = new AttributesImporter(organism,"__gene__main");
+				attr_map = ai.getAttributes();
+				sd = new SettingsDialog(this,attr_map);
+	
+				resultPanel = new JPanel();
+				System.err.println(attr_map.size());
+				System.err.println(attr_map);
 				
-			
-			return resultPanel;
-			
+				//TODO: move this to biomart basic class as properties!
+				Collection<String> attrs = new HashSet<String>();
+
+
+				Iterator<String> it = attr_map.keySet().iterator();
+				while(it.hasNext()){
+					String temp = attr_map.get(it.next());
+					attrs.add(temp);
+				}
+		/*		attrs.add("ensembl_gene_id");
+
+				attrs.add("external_gene_id");
+				attrs.add("description");
+				attrs.add("chromosome_name");
+				attrs.add("start_position");
+				attrs.add("end_position");
+				attrs.add("strand");
+				attrs.add("band");
+				attrs.add("transcript_count");
+				attrs.add("percentage_gc_content");
+				attrs.add("status");
+			*/	
+
+				Collection<String> identifierFilters = new HashSet<String>();
+				identifierFilters.add(mapped.getId().toString());
+				
+				Document result = BiomartQueryService.createQuery(organism, attrs, identifierFilters);
+				
+				InputStream is = BiomartQueryService.getDataStream(result);
+				s = getStringFromInputStream(is);
+				if(s.equals("Invalid")){
+					return new JLabel ("No information returned.");
+				}
+				else{
+				//return arrayToTable(csvReader(s));
+
+					sendResult();
+					
+				
+				return resultPanel;
+				
+				}
+				
+			} else {
+				return(new JLabel ("This organism is not supported by Ensembl Biomart."));
 			}
-		}
-		else{
-		
+		} else {
 			System.err.println("Internet not working");
 			JLabel jl = new JLabel ("Error: Cannot connect to the internet.");
 			jl.setHorizontalAlignment(JLabel.RIGHT);
@@ -305,60 +292,6 @@ public class BiomartConnectPlugin extends JPanel implements  SelectionListener, 
 				return (result.iterator().next());
 		}
 	}
-	
-	/**
-	 * maps between BridgeDb species names
-	 * and Ensembl BioMart species names
-	 */
-	private String datasetMapper(){
-		switch (desktop.getSwingEngine().getCurrentOrganism().toString()) {
-			case"AnophelesGambiae": return null;
-			case"ArabidopsisThaliana": return null;
-			case"Aspergillusniger": return null;
-			case"BacillusSubtilis": return null;
-			case"BosTaurus": return "btaurus_gene_ensembl";
-			case"CaenorhabditisElegans": return "celegans_gene_ensembl";
-			case"CanisFamiliaris": return "cfamiliaris_gene_ensembl";		
-			case"CionaIntestinalis": return null;
-			case"Clostridiumthermocellum": return null;
-			case"DanioRerio": return "drerio_gene_ensembl";
-			case"DasypusNovemcinctus": return "dnovemcinctus_gene_ensembl";
-			case"DrosophilaMelanogaster": return "dmelanogaster_gene_ensembl";		
-			case"EscherichiaColi": return null;
-			case"EchinposTelfairi": return "etelfairi_gene_ensembl";
-			case"EquusCaballus": return "ecaballus_gene_ensembl";	
-			case"GallusGallus": return "ggallus_gene_ensembl";
-			case"GlycineMax": return null;
-			case"GibberellaZeae": return null;		
-			case"HomoSapiens": return "hsapiens_gene_ensembl";
-			case"LoxodontaAfricana": return "lafricana_gene_ensembl";
-			case"MacacaMulatta": return "mmulatta_gene_ensembl";	
-			case"MusMusculus": return "mmusculus_gene_ensembl";
-			case"MonodelphisDomestica": return "mdomestica_gene_ensembl";
-			case"MycobacteriumTuberculosis": return null;
-			case"OrnithorhynchusAnatinus": return "oanatinus_gene_ensembl";
-			case"OryzaSativa": return null;
-			case"OryzaJaponica": return null;
-			case"OryzaSativaJaponica": return null;
-			case"OryziasLatipes": return "olatipes_gene_ensembl";
-			case"OryctolagusCuniculus": return "ocuniculus_gene_ensembl";
-			case"PanTroglodytes": return "ptroglodytes_gene_ensembl";
-			case"SolanumLycopersicum": return null;
-			case"SusScrofa": return "sscrofa_gene_ensembl";
-			case"PopulusTrichocarpa": return null;
-			case"RattusNorvegicus": return "rnorvegicus_gene_ensembl";
-			case"SaccharomycesCerevisiae": return "scerevisiae_gene_ensembl";
-			case"SorexAraneus": return "saraneus_gene_ensembl";	
-			case"SorghumBicolor": return null;
-			case"TetraodonNigroviridis": return "tnigroviridis_gene_ensembl";		
-			case"TriticumAestivum": return null;
-			case"XenopusTropicalis": return "xtropicalis_gene_ensembl";
-			case"VitisVinifera": return null;
-			case"ZeaMays": return null;
-			default: return null;
-		}
-	}
-
 
 	private String[][] dialogToArray(String[][] m){
 		

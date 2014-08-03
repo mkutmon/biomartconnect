@@ -1,18 +1,18 @@
 package org.pathvisio.biomartconnect.impl;
 
 import java.awt.BorderLayout;
-
 import java.awt.FlowLayout;
-
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
-
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
+
+
 
 
 import javax.swing.JButton;
@@ -20,11 +20,10 @@ import javax.swing.JCheckBox;
 import javax.swing.JDialog;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
-
 import javax.swing.JScrollPane;
 
 public class TableSettingsDialog extends JDialog {
-	Map<String,String> attr_map;
+	String [] attr;
 	JCheckBox[] jc;
 	/*
 
@@ -42,8 +41,10 @@ public class TableSettingsDialog extends JDialog {
 
 	*/
 	GeneticVariationProvider bcp;
+	JPanel resultPanel;
+	JScrollPane jsp;
 	
-	public TableSettingsDialog(GeneticVariationProvider bcp, Map<String,String> attr_map){
+	public TableSettingsDialog(GeneticVariationProvider bcp, String[] attr, JPanel resultPanel, JScrollPane jsp){
 /*		
 
 		ensembl_gene_id = new JCheckBox("Ensembl Gene ID");
@@ -60,7 +61,9 @@ public class TableSettingsDialog extends JDialog {
 
 		*/
 		this.bcp = bcp;
-		this.attr_map = attr_map;
+		this.attr = attr;
+		this.resultPanel = resultPanel;
+		this.jsp = jsp;
 
 		
 		initUI();
@@ -73,19 +76,20 @@ public class TableSettingsDialog extends JDialog {
 		
 		JPanel jp = new JPanel();
 
-		jp.setLayout(new GridLayout((attr_map.size()/4)+1,4));
+		jp.setLayout(new GridLayout((attr.length/4)+1,4));
 		
-		jc = new JCheckBox[attr_map.size()];
+		jc = new JCheckBox[attr.length];
 		int temp_counter = 0;
-		Iterator<String> it = attr_map.keySet().iterator();
-		while(it.hasNext()){
-			String temp = it.next();
+		int count = 0;
+		while(count < attr.length){
+			String temp = attr[count];
 			jc[temp_counter] = new JCheckBox(temp);
-			if(attr_map.get(temp).equals("ensembl_gene_id") || attr_map.get(temp).equals("external_gene_id") || attr_map.get(temp).equals("description") || attr_map.get(temp).equals("chromosome_name") || attr_map.get(temp).equals("start_position"))
-				jc[temp_counter].setSelected(true);
+			//if(attr_map.get(temp).equals("ensembl_gene_id") || attr_map.get(temp).equals("external_gene_id") || attr_map.get(temp).equals("description") || attr_map.get(temp).equals("chromosome_name") || attr_map.get(temp).equals("start_position"))
+			jc[temp_counter].setSelected(true);
 			jp.add(jc[temp_counter++]);
+			count++;
 		}
-		
+	
 /*		
 
 		ensembl_gene_id.setSelected(true);
@@ -108,13 +112,9 @@ public class TableSettingsDialog extends JDialog {
 		jp.add(status);
 
 	*/	
-
+		
 		JButton applyButton = new JButton("Apply");
-        applyButton.addActionListener(new ActionListener() {
-        	public void actionPerformed(ActionEvent e){
-				bcp.sendResult();
-			}
-        });
+
         
 		JPanel southPanel = new JPanel();
 		southPanel.setLayout(new GridBagLayout());
@@ -126,12 +126,17 @@ public class TableSettingsDialog extends JDialog {
 		con.gridwidth = 3;
         southPanel.add(applyButton,con);
 		
-
 		//southPanel.add(applyButton,BorderLayout.CENTER);
 		add(southPanel,BorderLayout.SOUTH);
 
 		JScrollPane scrollpane = new JScrollPane(jp,  JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
 		add(scrollpane,BorderLayout.CENTER);
+		
+        applyButton.addActionListener(new ActionListener() {
+        	public void actionPerformed(ActionEvent e){
+				bcp.sendResult(resultPanel,notSelectedOptions());
+			}
+        });
 
 		add(title,BorderLayout.NORTH);
         setTitle("BiomartConnect");
@@ -140,18 +145,18 @@ public class TableSettingsDialog extends JDialog {
 
         setSize(450,330);
         
-
+	
 
 	}
 	
-	public ArrayList<String> selectedOptions() {
+	public List<String> notSelectedOptions() {
 		
-		ArrayList<String> temp = new ArrayList<String>();
+		List<String> temp = new ArrayList<String>();
 		
 
 		int i;
 		for(i=0;i<jc.length;i++){
-			if(jc[i].isSelected()){
+			if(!jc[i].isSelected()){
 				temp.add(jc[i].getText());
 			}
 		}
