@@ -113,7 +113,7 @@ public class TableDialog extends JDialog {
 		JScrollPane scrollpane = new JScrollPane(jt,  JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
 		master.add(scrollpane,BorderLayout.CENTER);
         
-        TableSettingsDialog tsd = new TableSettingsDialog(bcp,attr,master,scrollpane);
+        final TableSettingsDialog tsd = new TableSettingsDialog(bcp,attr,master,scrollpane);
         JButton settings = new JButton("Settings");
         settings.setAlignmentX(Component.CENTER_ALIGNMENT);
         
