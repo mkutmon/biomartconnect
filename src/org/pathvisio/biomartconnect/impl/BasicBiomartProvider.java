@@ -57,7 +57,7 @@ public class BasicBiomartProvider implements IInfoProvider {
 		if(desktop.getSwingEngine().getCurrentOrganism() == null)
 			return(new JLabel ("Organism not set for active pathway."));
 
-		Xref mapped = mapId(xref);
+		Xref mapped = Utils.mapId(xref,desktop);
 		System.out.println(mapped);
 		if(mapped.getId().equals("")){
 			return(new JLabel ("This identifier cannot be mapped to Ensembl."));
@@ -102,11 +102,11 @@ public class BasicBiomartProvider implements IInfoProvider {
 				Collection<String> identifierFilters = new HashSet<String>();
 				identifierFilters.add(mapped.getId().toString());
 				
-				Document result = BiomartQueryService.createQuery(organism, attrs, identifierFilters);
+				Document result = BiomartQueryService.createQuery(organism, attrs, identifierFilters,"TSV");
 				
 				InputStream is = BiomartQueryService.getDataStream(result);
 
-				s = getStringFromInputStream(is);
+				s = Utils.getStringFromInputStream(is);
 				if(s.equals("Invalid")){
 					return new JLabel ("No information returned.");
 				}
@@ -131,59 +131,8 @@ public class BasicBiomartProvider implements IInfoProvider {
 		}
 	}
 	
-	private Xref mapId(Xref xref){
-		IDMapperStack mapper = desktop.getSwingEngine().getGdbManager().getCurrentGdb();
-		
-		if(xref.getDataSource().getSystemCode().equals("En")){
-			return xref;			
-		} else {
-			try {
-				Set<Xref> result = mapper.mapID(xref, DataSource.getBySystemCode("En"));
-				if(result.isEmpty())
-					return (new Xref("",null));
-				else
-					return (result.iterator().next());
-			} catch (IDMapperException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-				return (new Xref("",null));
-			}
-		}
-	}
-	
-	private String getStringFromInputStream(InputStream is) {
-		 
-		int count = 0;
-		BufferedReader br = null;
-		StringBuilder sb = new StringBuilder();
-		String line;
-		
-		try {
-			br = new BufferedReader(new InputStreamReader(is));
-			while ((line = br.readLine()) != null) {
-				sb.append(line);
-				sb.append('\n');
-				count++;		
-			}
-		} catch (IOException e) {
-			e.printStackTrace();
-		} finally {
-			if (br != null) {
-				try {
-					br.close();
-				} catch (IOException e) {
-					e.printStackTrace();
-				}
-			}
-		}
 
-		sb.deleteCharAt(sb.length()-1);
-		if(count == 1){
-			return("Invalid");
-		} else {
-			return sb.toString();
-		}
-	}
+	
 	
 	public void sendResult() {
 		resultPanel.removeAll();

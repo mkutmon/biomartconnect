@@ -1,12 +1,23 @@
 package org.pathvisio.biomartconnect.impl;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.table.AbstractTableModel;
 import javax.swing.table.TableModel;
+
+import org.bridgedb.DataSource;
+import org.bridgedb.IDMapperException;
+import org.bridgedb.IDMapperStack;
+import org.bridgedb.Xref;
+import org.pathvisio.desktop.PvDesktop;
 
 public class Utils {
 	
@@ -75,5 +86,61 @@ public class Utils {
 		return scrollpane;
 	}
 	
+
+	public static Xref mapId(Xref xref, PvDesktop desktop) {
+
+		IDMapperStack mapper = desktop.getSwingEngine().getGdbManager().getCurrentGdb();
+		
+		if(xref.getDataSource().getSystemCode().equals("En")){
+			return xref;			
+		} else {
+			try {
+				Set<Xref> result = mapper.mapID(xref, DataSource.getBySystemCode("En"));
+				if(result.isEmpty())
+					return (new Xref("",null));
+				else
+					return (result.iterator().next());
+			} catch (IDMapperException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+				return (new Xref("",null));
+			}
+		}
+	}
+	
+	public static String getStringFromInputStream(InputStream is) {
+		 
+		int count = 0;
+		BufferedReader br = null;
+		StringBuilder sb = new StringBuilder();
+		String line;
+		
+		try {
+			br = new BufferedReader(new InputStreamReader(is));
+			while ((line = br.readLine()) != null) {
+				sb.append(line);
+				sb.append('\n');
+				count++;		
+			}
+		} catch (IOException e) {
+			e.printStackTrace();
+		} finally {
+			if (br != null) {
+				try {
+					br.close();
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+			}
+		}
+
+		sb.deleteCharAt(sb.length()-1);
+		if(count == 1){
+			return("Invalid");
+		} else {
+			return sb.toString();
+		}
+	}
+
 	
 }

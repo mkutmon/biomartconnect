@@ -26,6 +26,7 @@ import org.w3c.dom.ls.LSSerializer;
  * @author rohansaxena
  *
  */
+
 public class BiomartQueryService {
 	private static int TIMEOUT_MS = 3000;
 	private static String biomart = "http://www.biomart.org/biomart/martservice/result?query=" ; 
@@ -70,7 +71,7 @@ public class BiomartQueryService {
 	 * @param identifierFilters - the identifiers to get the attributes for
 	 * @return a XMLDocument formattted correctly to send to biomart 
 	 */
-	public static Document createQuery(String set, Collection<String> attrs, Collection<String> identifierFilters ) {
+	public static Document createQuery(String set, Collection<String> attrs, Collection<String> identifierFilters, String format ) {
 		try {
 			DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
 			DocumentBuilder docBuilder = dbf.newDocumentBuilder();
@@ -81,7 +82,7 @@ public class BiomartQueryService {
 			query.appendChild(doctype);
 			Element root = query.createElement("Query");
 			root.setAttribute("client", "true");
-			root.setAttribute("formatter", "TSV");
+			root.setAttribute("formatter", format);
 			root.setAttribute("limit", "-1");
 			root.setAttribute("header", "1");
 			query.appendChild(root);

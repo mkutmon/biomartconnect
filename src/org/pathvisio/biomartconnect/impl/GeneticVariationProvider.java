@@ -100,7 +100,7 @@ public class GeneticVariationProvider extends JPanel implements IInfoProvider{
 					Collection<String> identifierFilters = new HashSet<String>();
 					identifierFilters.add(mapped.getId().toString());
 					
-					Document result = BiomartQueryService.createQuery(organsim, attrs, identifierFilters);
+					Document result = BiomartQueryService.createQuery(organsim, attrs, identifierFilters,"TSV");
 					System.err.println("10");
 					InputStream is = BiomartQueryService.getDataStream(result);
 					System.err.println("20");

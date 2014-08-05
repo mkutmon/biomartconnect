@@ -28,12 +28,14 @@ public class BiomartConnectPlugin extends JPanel implements  SelectionListener, 
 	private InfoRegistry registry;
 	private IInfoProvider basic;
 	private IInfoProvider var;
+	private IInfoProvider seq;
 
 	
 	@Override
 	public void done() {
 		registry.unregisterInfoProvider(basic);
 		registry.unregisterInfoProvider(var);
+		registry.unregisterInfoProvider(seq);
 	}
 	
 	@Override
@@ -41,10 +43,12 @@ public class BiomartConnectPlugin extends JPanel implements  SelectionListener, 
 		
 		// registers plugin as information provider
 		registry = InfoRegistry.getInfoRegistry();
-		IInfoProvider basic = new BasicBiomartProvider(desktop);
-		IInfoProvider var = new GeneticVariationProvider(registry, desktop);
+		basic = new BasicBiomartProvider(desktop);
+		var = new GeneticVariationProvider(registry, desktop);
+		seq = new SequenceViewerProvider(desktop);
 		registry.registerInfoProvider(basic);
 		registry.registerInfoProvider(var);
+		registry.registerInfoProvider(seq);
 		
 		desktop.getSwingEngine().getEngine().addApplicationEventListener(this);
 		VPathway vp = desktop.getSwingEngine().getEngine().getActiveVPathway();
