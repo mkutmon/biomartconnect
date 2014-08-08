@@ -1,13 +1,30 @@
 package org.pathvisio.biomartconnect.impl;
 
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.io.InputStream;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
+import javafx.scene.control.ToggleButton;
+
+import javax.swing.JButton;
+import javax.swing.JComboBox;
 import javax.swing.JComponent;
+import javax.swing.JEditorPane;
 import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JTextArea;
+import javax.swing.JTextField;
+import javax.swing.JTextPane;
+import javax.swing.JToggleButton;
+import javax.swing.MutableComboBoxModel;
+import javax.swing.text.JTextComponent;
 
 import org.bridgedb.Xref;
 import org.pathvisio.core.model.DataNodeType;
@@ -52,6 +69,9 @@ public class SequenceViewerProvider implements IInfoProvider {
 			System.err.println("Internet is ok");
 
 			String organism = Utils.mapOrganism(desktop.getSwingEngine().getCurrentOrganism().toString());
+
+			
+			
 			if(organism != null) {
 				
 				Collection<String> attrs = new HashSet<String>();
@@ -69,13 +89,12 @@ public class SequenceViewerProvider implements IInfoProvider {
 				SequenceContainer sc = new SequenceContainer();
 				sc.fastaParser(is,mapped.getId().toString(),false);
 
-
 				attrs.remove("coding");
 				attrs.add("gene_exon");
 				result = BiomartQueryService.createQuery(organism, attrs, identifierFilters,"FASTA");
 				is = BiomartQueryService.getDataStream(result);
-				String s = Utils.getStringFromInputStream(is);
-				System.err.println(s);				
+				//String s = Utils.getStringFromInputStream(is);
+				//System.err.println(s);				
 				sc.fastaParser(is,mapped.getId().toString(),true);
 				
 				System.err.println("*****************");
@@ -83,7 +102,60 @@ public class SequenceViewerProvider implements IInfoProvider {
 				
 		
 		//return (new JLabel(s));
-				return null;
+				JComboBox<String> transcriptIdList = new JComboBox<String>();
+				MutableComboBoxModel<String> model = (MutableComboBoxModel<String>)transcriptIdList.getModel();
+				JPanel jp = new JPanel();
+				
+				JTextArea jta = new JTextArea();
+				jta.setLineWrap(true);
+				JScrollPane jsp = new JScrollPane(jta,JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED,JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+				jta.setEditable(false);
+				//jta.setContentType("text/html");
+				
+				for(InfoPerTranscriptId obj: sc.transcriptIdList){
+				model.addElement(obj.getTranscriptId());
+				}
+				
+				transcriptIdList.addActionListener(
+						new ActionListener(){
+							public void actionPerformed(ActionEvent e){
+								System.err.println("Triggering");
+		                        JComboBox<String> temp_combo = (JComboBox<String>)e.getSource();
+		                        String currentQuantity = (String)temp_combo.getSelectedItem();
+		                        System.err.println(currentQuantity);
+		                        jta.setText(sc.find(currentQuantity).getSequence());
+		                        //System.err.println();
+							}
+						});
+				
+				JToggleButton mark_exon = new JToggleButton("Mark Exons");
+				
+				mark_exon.addActionListener(
+						new ActionListener(){
+							String replacedStr = null;
+							public void actionPerformed(ActionEvent e){
+								if( ((JToggleButton)e.getSource()).isSelected()){
+									replacedStr = sc.find(transcriptIdList.getSelectedItem().toString()).getSequence();
+									for(String temp_exon: sc.find(transcriptIdList.getSelectedItem().toString()).getExon()){
+									if(sc.find(transcriptIdList.getSelectedItem().toString()).getSequence().contains(temp_exon)){
+										replacedStr = replacedStr.replaceAll(temp_exon, "<font color=red>" + temp_exon + "</font>" );
+									}
+									}
+									
+									jta.setText(replacedStr);									
+								}
+							}	
+						});
+				
+				jp.setLayout(new BorderLayout());
+				jp.add(transcriptIdList, BorderLayout.NORTH);
+				jp.add(jsp,BorderLayout.CENTER);
+				jp.add(mark_exon,BorderLayout.SOUTH);
+				
+				
+				
+				
+				return jp;
 		
 		
 	}

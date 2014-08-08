@@ -54,11 +54,11 @@ public class SequenceContainer {
 
 					if(temp_array != null){
 						
-						for(int i=0;i<temp_array.length;i++){
+						for(int i=0;i<temp_array.length && temp_array[i] != null;i++){
 							InfoPerTranscriptId it = find(temp_array[i]);
 							if(it != null){
 								if(isExon){
-							it.setExon(sb.toString());
+									it.setExon(sb.toString());
 								}
 								else {
 									it.setSequence(sb.toString());
@@ -71,18 +71,18 @@ public class SequenceContainer {
 					
 					String temp = line.substring(1);
 					temp_array = temp.split("[|]");
-					System.err.println(Arrays.toString(temp_array));
+					//System.err.println(Arrays.toString(temp_array));
 					Set<String> temp_set = new HashSet<String>();
 					for(int i=0;i<temp_array.length;i++){
 						
 						temp_set.addAll(Arrays.asList(temp_array[i].split("[;]")));
 					}
 					
-					System.err.println(temp_set.toString());
+					//System.err.println(temp_set.toString());
 					
 					temp_array = temp_set.toArray(temp_array);
 					
-					for(int i=0;i<temp_array.length;i++){
+					for(int i=0;i<temp_array.length && temp_array[i] != null;i++){
 						
 						System.err.println(temp_array[i]);
 						
@@ -103,7 +103,7 @@ public class SequenceContainer {
 				//sb.append('\n');		
 			}
 			
-			for(int i=0;i<temp_array.length;i++){
+			for(int i=0;i<temp_array.length && temp_array[i] != null;i++){
 				InfoPerTranscriptId it = find(temp_array[i]);
 				if(it != null){
 					if(isExon){
@@ -133,21 +133,24 @@ public class SequenceContainer {
 	public void print() {
 		// TODO Auto-generated method stub
 		for(InfoPerTranscriptId temp: transcriptIdList){			
-			System.err.println(temp.getTranscriptId());
-			/*
+			System.err.println("starts here" + temp.getTranscriptId());
+			
 			if(temp.getSequence() != null){
-				System.err.println(temp.getSequence().substring(0, 10));
+				System.err.println("sequence" + temp.getSequence().substring(0, 10));
 			}
 			else{
 				System.err.println("Null");
 			}
 			if(temp.getExon() != null){
-				System.err.println(temp.getExon().substring(0, 10));
+				List<String> temp_list = temp.getExon();
+				for(String temp_string: temp_list){	
+					System.err.println("exon" + temp_string.substring(0, 10));	
+				}
 			}
 			else{
 				System.err.println("Null");
 			}
-			*/
+			
 		}
 	}
 }
