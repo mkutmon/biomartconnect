@@ -10,7 +10,7 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-import javafx.scene.control.ToggleButton;
+
 
 import javax.swing.JButton;
 import javax.swing.JComboBox;
@@ -24,6 +24,10 @@ import javax.swing.JTextField;
 import javax.swing.JTextPane;
 import javax.swing.JToggleButton;
 import javax.swing.MutableComboBoxModel;
+import javax.swing.text.BadLocationException;
+import javax.swing.text.DefaultHighlighter;
+import javax.swing.text.Highlighter;
+import javax.swing.text.Highlighter.HighlightPainter;
 import javax.swing.text.JTextComponent;
 
 import org.bridgedb.Xref;
@@ -86,7 +90,7 @@ public class SequenceViewerProvider implements IInfoProvider {
 				//String s = Utils.getStringFromInputStream(is);
 				//System.err.println(s);
 				//is = BiomartQueryService.getDataStream(result);
-				SequenceContainer sc = new SequenceContainer();
+				final SequenceContainer sc = new SequenceContainer();
 				sc.fastaParser(is,mapped.getId().toString(),false);
 
 				attrs.remove("coding");
@@ -102,11 +106,11 @@ public class SequenceViewerProvider implements IInfoProvider {
 				
 		
 		//return (new JLabel(s));
-				JComboBox<String> transcriptIdList = new JComboBox<String>();
+				final JComboBox<String> transcriptIdList = new JComboBox<String>();
 				MutableComboBoxModel<String> model = (MutableComboBoxModel<String>)transcriptIdList.getModel();
 				JPanel jp = new JPanel();
 				
-				JTextArea jta = new JTextArea();
+				final JTextArea jta = new JTextArea();
 				jta.setLineWrap(true);
 				JScrollPane jsp = new JScrollPane(jta,JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED,JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
 				jta.setEditable(false);
@@ -133,19 +137,27 @@ public class SequenceViewerProvider implements IInfoProvider {
 				mark_exon.addActionListener(
 						new ActionListener(){
 							String replacedStr = null;
-							public void actionPerformed(ActionEvent e){
+								public void actionPerformed(ActionEvent e){
 								if( ((JToggleButton)e.getSource()).isSelected()){
 									replacedStr = sc.find(transcriptIdList.getSelectedItem().toString()).getSequence();
+									
+									jta.setText(replacedStr);
+									Highlighter highlighter = jta.getHighlighter();
+								      HighlightPainter painter = 
+								             new DefaultHighlighter.DefaultHighlightPainter(Color.PINK);
 									for(String temp_exon: sc.find(transcriptIdList.getSelectedItem().toString()).getExon()){
 									if(sc.find(transcriptIdList.getSelectedItem().toString()).getSequence().contains(temp_exon)){
-										replacedStr = replacedStr.replaceAll(temp_exon, "<font color=red>" + temp_exon + "</font>" );
-									}
-									}
-									
-									jta.setText(replacedStr);									
-								}
-							}	
-						});
+										
+										 int p0 = replacedStr.indexOf(temp_exon);										
+									      int p1 = p0 + temp_exon.length();
+									      
+									      try {
+											highlighter.addHighlight(p0, p1, painter );
+										} catch (BadLocationException e1) {
+											
+											e1.printStackTrace();
+										}
+									}}}}});
 				
 				jp.setLayout(new BorderLayout());
 				jp.add(transcriptIdList, BorderLayout.NORTH);
