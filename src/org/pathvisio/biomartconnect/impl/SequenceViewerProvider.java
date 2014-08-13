@@ -24,7 +24,18 @@ import javax.swing.JTextField;
 import javax.swing.JTextPane;
 import javax.swing.JToggleButton;
 import javax.swing.MutableComboBoxModel;
+import javax.swing.text.AbstractDocument;
+import javax.swing.text.BoxView;
+import javax.swing.text.ComponentView;
+import javax.swing.text.Element;
+import javax.swing.text.IconView;
 import javax.swing.text.JTextComponent;
+import javax.swing.text.LabelView;
+import javax.swing.text.ParagraphView;
+import javax.swing.text.StyleConstants;
+import javax.swing.text.StyledEditorKit;
+import javax.swing.text.View;
+import javax.swing.text.ViewFactory;
 
 import org.bridgedb.Xref;
 import org.pathvisio.core.model.DataNodeType;
@@ -105,12 +116,29 @@ public class SequenceViewerProvider implements IInfoProvider {
 				JComboBox<String> transcriptIdList = new JComboBox<String>();
 				MutableComboBoxModel<String> model = (MutableComboBoxModel<String>)transcriptIdList.getModel();
 				JPanel jp = new JPanel();
+
+				JTextPane jta = new JTextPane();
+				jta.setEditorKit(new WrapEditorKit());
+				//JPanel noWrapPanel = new JPanel( new BorderLayout() );
+				//noWrapPanel.add( jta );
+				//JScrollPane jsp = new JScrollPane( jta );
+				//jsp.setViewportView(noWrapPanel);
+				//noWrapPanel.add(jta);
 				
-				JTextArea jta = new JTextArea();
-				jta.setLineWrap(true);
+				//JTextArea jta = new JTextArea();
+				//JTextPane jta = new JTextPane()
+				/*{
+				    public boolean getScrollableTracksViewportWidth()
+				    {
+				        return getUI().getPreferredSize(this).width 
+				            <= getParent().getSize().width;
+				    }
+				};
+				*/
+				//jta.setLineWrap(true);
 				JScrollPane jsp = new JScrollPane(jta,JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED,JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
 				jta.setEditable(false);
-				//jta.setContentType("text/html");
+				jta.setContentType("text/html");
 				
 				for(InfoPerTranscriptId obj: sc.transcriptIdList){
 				model.addElement(obj.getTranscriptId());
@@ -142,7 +170,8 @@ public class SequenceViewerProvider implements IInfoProvider {
 									}
 									}
 									
-									jta.setText(replacedStr);									
+									jta.setText(replacedStr);
+									
 								}
 							}	
 						});
@@ -162,5 +191,54 @@ public class SequenceViewerProvider implements IInfoProvider {
 		}
 		return null;
 	}
+	
+    class WrapEditorKit extends StyledEditorKit {
+        ViewFactory defaultFactory=new WrapColumnFactory();
+        public ViewFactory getViewFactory() {
+            return defaultFactory;
+        }
+
+    }
+
+    class WrapColumnFactory implements ViewFactory {
+        public View create(Element elem) {
+            String kind = elem.getName();
+            if (kind != null) {
+                if (kind.equals(AbstractDocument.ContentElementName)) {
+                    return new WrapLabelView(elem);
+                } else if (kind.equals(AbstractDocument.ParagraphElementName)) {
+                    return new ParagraphView(elem);
+                } else if (kind.equals(AbstractDocument.SectionElementName)) {
+                    return new BoxView(elem, View.Y_AXIS);
+                } else if (kind.equals(StyleConstants.ComponentElementName)) {
+                    return new ComponentView(elem);
+                } else if (kind.equals(StyleConstants.IconElementName)) {
+                    return new IconView(elem);
+                }
+            }
+
+            // default to text display
+            return new LabelView(elem);
+        }
+    }
+
+    class WrapLabelView extends LabelView {
+        public WrapLabelView(Element elem) {
+            super(elem);
+        }
+
+        public float getMinimumSpan(int axis) {
+            switch (axis) {
+                case View.X_AXIS:
+                    return 0;
+                case View.Y_AXIS:
+                    return super.getMinimumSpan(axis);
+                default:
+                    throw new IllegalArgumentException("Invalid axis: " + axis);
+            }
+        }
+
+    }
+
 
 }
