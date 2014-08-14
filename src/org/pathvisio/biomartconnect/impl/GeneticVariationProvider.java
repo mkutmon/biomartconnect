@@ -45,7 +45,7 @@ public class GeneticVariationProvider extends JPanel implements IInfoProvider{
 	private JComponent resultPanel;
 	private ArrayList<String []> temp = null;
 	private TableModel dataModel = null;
-	
+	public static TableRowSorter<TableModel> sorter;
 	public GeneticVariationProvider(InfoRegistry registry, PvDesktop desktop) {
 		
 		registry.registerInfoProvider(this);
@@ -254,7 +254,7 @@ public class GeneticVariationProvider extends JPanel implements IInfoProvider{
 		          
 		      };
 		      
-		      TableRowSorter<TableModel> sorter = new TableRowSorter<TableModel>(dataModel);
+		      sorter = new TableRowSorter<TableModel>(dataModel);
 		      JTable table = new JTable(dataModel);
 		      table.setDefaultRenderer(Object.class, new Renderer());
 		      table.setRowSorter(sorter); 	

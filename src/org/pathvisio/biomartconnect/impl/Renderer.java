@@ -15,9 +15,38 @@ public class Renderer implements TableCellRenderer {
 	    JTextField editor = new JTextField();
 	    if (value != null)
 	      editor.setText(value.toString());
-	    if(table.getColumnName(column).equals("Associated Gene Name")){
-		    editor.setBackground((row % 2 == 0) ? Color.white : Color.cyan);
+	    if(table.getColumnName(column).equals("PolyPhen prediction")){
+	    	
+	    	if(value.toString().equalsIgnoreCase("probably damaging")){
+	    		editor.setBackground(Color.red);
+	    	}
+	    	
+	    	if(value.toString().equalsIgnoreCase("possibly damaging")){
+	    		editor.setBackground(Color.orange);
+	    	}
+	    	
+	    	if(value.toString().equalsIgnoreCase("benign")){
+	    		editor.setBackground(Color.green);
+	    	}
+	    	
+	    	if(value.toString().equalsIgnoreCase("unknown")){
+	    		editor.setBackground(Color.gray);
+	    	}
 	    }
+	    
+	    else if (table.getColumnName(column).equals("SIFT prediction")){
+	    	
+	    	if(value.toString().equalsIgnoreCase("tolerated")){
+	    		editor.setBackground(Color.green);
+	    	}
+	    	
+	    	if(value.toString().equalsIgnoreCase("deleterious")){
+	    		editor.setBackground(Color.red);
+	    	}
+	    	
+	    }
+	    
+	    
 	    return editor;
 	    
 	}

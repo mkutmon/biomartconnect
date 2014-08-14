@@ -141,7 +141,7 @@ public class BiomartQueryService {
 			
 			HttpURLConnection urlc = (HttpURLConnection) url.openConnection();
 			urlc.setDoOutput(true);
-			urlc.setDoInput(true);
+			//urlc.setDoInput(true);
 			int code = urlc.getResponseCode();
 			if(code != 200) {
 				Logger.log.warn("HTTP Response code: " + urlc.getResponseCode());

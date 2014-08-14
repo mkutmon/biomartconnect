@@ -10,7 +10,7 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-import javafx.scene.control.ToggleButton;
+
 
 import javax.swing.JButton;
 import javax.swing.JComboBox;
@@ -24,11 +24,12 @@ import javax.swing.JTextField;
 import javax.swing.JTextPane;
 import javax.swing.JToggleButton;
 import javax.swing.MutableComboBoxModel;
-import javax.swing.text.AbstractDocument;
-import javax.swing.text.BoxView;
-import javax.swing.text.ComponentView;
-import javax.swing.text.Element;
-import javax.swing.text.IconView;
+
+import javax.swing.text.BadLocationException;
+import javax.swing.text.DefaultHighlighter;
+import javax.swing.text.Highlighter;
+import javax.swing.text.Highlighter.HighlightPainter;
+
 import javax.swing.text.JTextComponent;
 import javax.swing.text.LabelView;
 import javax.swing.text.ParagraphView;
@@ -97,7 +98,7 @@ public class SequenceViewerProvider implements IInfoProvider {
 				//String s = Utils.getStringFromInputStream(is);
 				//System.err.println(s);
 				//is = BiomartQueryService.getDataStream(result);
-				SequenceContainer sc = new SequenceContainer();
+				final SequenceContainer sc = new SequenceContainer();
 				sc.fastaParser(is,mapped.getId().toString(),false);
 
 				attrs.remove("coding");
@@ -113,32 +114,23 @@ public class SequenceViewerProvider implements IInfoProvider {
 				
 		
 		//return (new JLabel(s));
-				JComboBox<String> transcriptIdList = new JComboBox<String>();
+				final JComboBox<String> transcriptIdList = new JComboBox<String>();
 				MutableComboBoxModel<String> model = (MutableComboBoxModel<String>)transcriptIdList.getModel();
 				JPanel jp = new JPanel();
 
-				JTextPane jta = new JTextPane();
-				jta.setEditorKit(new WrapEditorKit());
+
 				//JPanel noWrapPanel = new JPanel( new BorderLayout() );
 				//noWrapPanel.add( jta );
 				//JScrollPane jsp = new JScrollPane( jta );
 				//jsp.setViewportView(noWrapPanel);
 				//noWrapPanel.add(jta);
 				
-				//JTextArea jta = new JTextArea();
-				//JTextPane jta = new JTextPane()
-				/*{
-				    public boolean getScrollableTracksViewportWidth()
-				    {
-				        return getUI().getPreferredSize(this).width 
-				            <= getParent().getSize().width;
-				    }
-				};
-				*/
-				//jta.setLineWrap(true);
+
+				final JTextArea jta = new JTextArea();
+				jta.setLineWrap(true);
+
 				JScrollPane jsp = new JScrollPane(jta,JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED,JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
 				jta.setEditable(false);
-				jta.setContentType("text/html");
 				
 				for(InfoPerTranscriptId obj: sc.transcriptIdList){
 				model.addElement(obj.getTranscriptId());
@@ -161,20 +153,29 @@ public class SequenceViewerProvider implements IInfoProvider {
 				mark_exon.addActionListener(
 						new ActionListener(){
 							String replacedStr = null;
-							public void actionPerformed(ActionEvent e){
+								public void actionPerformed(ActionEvent e){
 								if( ((JToggleButton)e.getSource()).isSelected()){
 									replacedStr = sc.find(transcriptIdList.getSelectedItem().toString()).getSequence();
-									for(String temp_exon: sc.find(transcriptIdList.getSelectedItem().toString()).getExon()){
-									if(sc.find(transcriptIdList.getSelectedItem().toString()).getSequence().contains(temp_exon)){
-										replacedStr = replacedStr.replaceAll(temp_exon, "<font color=red>" + temp_exon + "</font>" );
-									}
-									}
 									
 									jta.setText(replacedStr);
-									
-								}
-							}	
-						});
+									Highlighter highlighter = jta.getHighlighter();
+								      HighlightPainter painter = 
+								             new DefaultHighlighter.DefaultHighlightPainter(Color.PINK);
+									for(String temp_exon: sc.find(transcriptIdList.getSelectedItem().toString()).getExon()){
+									if(sc.find(transcriptIdList.getSelectedItem().toString()).getSequence().contains(temp_exon)){
+
+										
+										 int p0 = replacedStr.indexOf(temp_exon);										
+									      int p1 = p0 + temp_exon.length();
+									      
+									      try {
+											highlighter.addHighlight(p0, p1, painter );
+										} catch (BadLocationException e1) {
+											
+											e1.printStackTrace();
+										}
+									}}}}});
+
 				
 				jp.setLayout(new BorderLayout());
 				jp.add(transcriptIdList, BorderLayout.NORTH);
@@ -192,53 +193,6 @@ public class SequenceViewerProvider implements IInfoProvider {
 		return null;
 	}
 	
-    class WrapEditorKit extends StyledEditorKit {
-        ViewFactory defaultFactory=new WrapColumnFactory();
-        public ViewFactory getViewFactory() {
-            return defaultFactory;
-        }
-
-    }
-
-    class WrapColumnFactory implements ViewFactory {
-        public View create(Element elem) {
-            String kind = elem.getName();
-            if (kind != null) {
-                if (kind.equals(AbstractDocument.ContentElementName)) {
-                    return new WrapLabelView(elem);
-                } else if (kind.equals(AbstractDocument.ParagraphElementName)) {
-                    return new ParagraphView(elem);
-                } else if (kind.equals(AbstractDocument.SectionElementName)) {
-                    return new BoxView(elem, View.Y_AXIS);
-                } else if (kind.equals(StyleConstants.ComponentElementName)) {
-                    return new ComponentView(elem);
-                } else if (kind.equals(StyleConstants.IconElementName)) {
-                    return new IconView(elem);
-                }
-            }
-
-            // default to text display
-            return new LabelView(elem);
-        }
-    }
-
-    class WrapLabelView extends LabelView {
-        public WrapLabelView(Element elem) {
-            super(elem);
-        }
-
-        public float getMinimumSpan(int axis) {
-            switch (axis) {
-                case View.X_AXIS:
-                    return 0;
-                case View.Y_AXIS:
-                    return super.getMinimumSpan(axis);
-                default:
-                    throw new IllegalArgumentException("Invalid axis: " + axis);
-            }
-        }
-
-    }
 
 
 }

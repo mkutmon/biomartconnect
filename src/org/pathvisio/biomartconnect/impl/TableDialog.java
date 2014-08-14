@@ -1,6 +1,7 @@
 package org.pathvisio.biomartconnect.impl;
 import java.awt.BorderLayout;
 import java.awt.Component;
+import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.Map;
@@ -12,6 +13,9 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextField;
+import javax.swing.RowFilter;
+import javax.swing.table.TableModel;
+import javax.swing.table.TableRowSorter;
 
 public class TableDialog extends JDialog {
 
@@ -33,6 +37,7 @@ public class TableDialog extends JDialog {
 	*/
 	GeneticVariationProvider bcp;
 	String [] attr;
+	JPanel jp;
 		
 	public TableDialog(GeneticVariationProvider bcp, JScrollPane jt, String [] attr){
 /*		
@@ -64,50 +69,31 @@ public class TableDialog extends JDialog {
 		JPanel master = new JPanel();
 		master.setLayout(new BorderLayout());
 		
-/*		
 
-		ensembl_gene_id.setSelected(true);
-		external_gene_id.setSelected(true);		
-		description.setSelected(true);
-		chromosome_name.setSelected(true);
-		start_position.setSelected(true);
+		//JPanel north_panel = new JPanel();
+		//north_panel.setLayout(new FlowLayout());
+		//jtf = new JTextField("Search");
 		
-
-		jp.add(ensembl_gene_id);
-		jp.add(external_gene_id);
-		jp.add(description);
-		jp.add(chromosome_name);
-		jp.add(start_position);
-		jp.add(end_position);
-		jp.add(strand);
-		jp.add(band);
-		jp.add(transcript_count);
-		jp.add(percentage_gc_content);
-		jp.add(status);
-
-	*/	
-
-/*		JButton applyButton = new JButton("Apply");
-        applyButton.addActionListener(new ActionListener() {
-        	public void actionPerformed(ActionEvent e){
-				bcp.sendResult();
-			}
-        });
-  */      
-	/*	JPanel southPanel = new JPanel();
-		southPanel.setLayout(new GridBagLayout());
-		GridBagConstraints con = new GridBagConstraints();
 		
-		con.fill = GridBagConstraints.HORIZONTAL;
-		con.gridx = 1;
-		con.gridy = 0;
-		con.gridwidth = 3;
-        southPanel.add(applyButton,con);
-		*/
+		//JButton filter = new JButton("Filter");
+		
+		//filter.addActionListener(new ActionListener(){
 
-		//southPanel.add(applyButton,BorderLayout.CENTER);
-		//add(southPanel,BorderLayout.SOUTH);
+			//public void actionPerformed(ActionEvent arg0) {
+				// TODO Auto-generated method stub
+				
+				//sendResult(jp,notSelectedOptions());
+				
 
+
+				
+			//}
+		//}
+		//);
+		
+		//north_panel.add(jtf);
+		//north_panel.add(filter);
+		
 		master.add(title,BorderLayout.NORTH);
 		
 		JScrollPane scrollpane = new JScrollPane(jt,  JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
