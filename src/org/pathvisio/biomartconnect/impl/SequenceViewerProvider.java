@@ -114,8 +114,8 @@ public class SequenceViewerProvider implements IInfoProvider {
 				
 		
 		//return (new JLabel(s));
-				final JComboBox<String> transcriptIdList = new JComboBox<String>();
-				MutableComboBoxModel<String> model = (MutableComboBoxModel<String>)transcriptIdList.getModel();
+				final JComboBox transcriptIdList = new JComboBox();
+				MutableComboBoxModel model = (MutableComboBoxModel)transcriptIdList.getModel();
 				JPanel jp = new JPanel();
 
 
@@ -140,7 +140,7 @@ public class SequenceViewerProvider implements IInfoProvider {
 						new ActionListener(){
 							public void actionPerformed(ActionEvent e){
 								System.err.println("Triggering");
-		                        JComboBox<String> temp_combo = (JComboBox<String>)e.getSource();
+		                        JComboBox temp_combo = (JComboBox)e.getSource();
 		                        String currentQuantity = (String)temp_combo.getSelectedItem();
 		                        System.err.println(currentQuantity);
 		                        jta.setText(sc.find(currentQuantity).getSequence());
