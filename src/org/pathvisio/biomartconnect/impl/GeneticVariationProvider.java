@@ -72,7 +72,7 @@ public class GeneticVariationProvider extends JPanel implements IInfoProvider{
 		Xref mapped = idMapper(xref);
 		
 		if(mapped.getId().equals("")){
-			return(new JLabel ("This identifier cannot be mapped to Ensembl."));
+			return(new JLabel("<html>This identifier cannot be mapped to Ensembl.<br/>Check if the correct identifier mapping database is loaded.</html>"));
 		}
 			if(BiomartQueryService.isInternetReachable())
 			{

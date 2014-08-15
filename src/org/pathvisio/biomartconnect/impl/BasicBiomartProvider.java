@@ -60,7 +60,7 @@ public class BasicBiomartProvider implements IInfoProvider {
 		Xref mapped = Utils.mapId(xref,desktop);
 		System.out.println(mapped);
 		if(mapped.getId().equals("")){
-			return(new JLabel ("This identifier cannot be mapped to Ensembl."));
+			return(new JLabel("<html>This identifier cannot be mapped to Ensembl.<br/>Check if the correct identifier mapping database is loaded.</html>"));
 		}
 		if(BiomartQueryService.isInternetReachable()) {
 
