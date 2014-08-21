@@ -54,7 +54,7 @@ public class SequenceViewerProvider implements IInfoProvider {
 	
 	@Override
 	public String getName() {
-		return("Sequence Viewer");
+		return("Biomart Sequence Viewer");
 	}
 
 	@Override

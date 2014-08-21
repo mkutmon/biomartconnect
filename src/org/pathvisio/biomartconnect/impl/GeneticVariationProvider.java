@@ -54,7 +54,7 @@ public class GeneticVariationProvider extends JPanel implements IInfoProvider{
 	}
 	
 	public String getName(){
-		String name = "Genetic Variation Provider";
+		String name = "Biomart Genetic Variation Provider";
 		return(name);	
 	}
 	
