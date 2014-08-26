@@ -153,8 +153,8 @@ public class SequenceViewerProvider implements IInfoProvider {
 				sc.fastaParser(is,mapped.getId().toString(),true);
 				
 				//JCombobox to show all the transcript ids
-				final JComboBox<String> transcriptIdList = new JComboBox<String>();
-				MutableComboBoxModel<String> model = (MutableComboBoxModel<String>)transcriptIdList.getModel();
+				final JComboBox transcriptIdList = new JComboBox();
+				MutableComboBoxModel model = (MutableComboBoxModel)transcriptIdList.getModel();
 				
 				JPanel jp = new JPanel();
 
@@ -170,7 +170,7 @@ public class SequenceViewerProvider implements IInfoProvider {
 				
 				transcriptIdList.addActionListener(new ActionListener(){
 					public void actionPerformed(ActionEvent e){
-						JComboBox<String> temp_combo = (JComboBox<String>)e.getSource();
+						JComboBox temp_combo = (JComboBox)e.getSource();
 		                String currentQuantity = (String)temp_combo.getSelectedItem();
 		                jta.setText(sc.find(currentQuantity).getSequence());
 		                }
