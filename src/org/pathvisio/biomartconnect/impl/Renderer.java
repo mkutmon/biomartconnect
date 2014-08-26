@@ -1,11 +1,19 @@
 package org.pathvisio.biomartconnect.impl;
 
+
 import java.awt.Color;
 import java.awt.Component;
 
 import javax.swing.JTable;
 import javax.swing.JTextField;
 import javax.swing.table.TableCellRenderer;
+
+/**
+ * Custom table cell renderer for Genetic Variation table to do color coding on prediction attributes
+ * 
+ * @author rsaxena
+ *
+ */
 
 public class Renderer implements TableCellRenderer {
 	

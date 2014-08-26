@@ -22,9 +22,11 @@ import org.w3c.dom.ls.LSOutput;
 import org.w3c.dom.ls.LSSerializer;
 
 /**
- * This c
- * @author rohansaxena
+ * This class is an adapted version of class BiomartDataService.java written by jakefried.
+ * http://svn.bigcat.unimaas.nl/pvplugins/jakefried/trunk/src/org/pathvisio/facets/model/ 
  *
+ *@author Rohan Saxena
+ * @author jakefried
  */
 
 public class BiomartQueryService {

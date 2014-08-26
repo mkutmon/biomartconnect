@@ -24,6 +24,7 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
+import javax.swing.RowFilter;
 import javax.swing.table.AbstractTableModel;
 import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableModel;
@@ -39,13 +40,23 @@ import org.pathvisio.inforegistry.IInfoProvider;
 import org.pathvisio.inforegistry.InfoRegistry;
 import org.w3c.dom.Document;
 
+/**
+ * Provider to show genetic variation data for selected gene product. It shows some basic data in tabular form
+ * directly in the info panel. More extensive information is provided under a new window which becomes visible 
+ * on clicking a button on info panel. 
+ * 
+ * 
+ * @author rsaxena
+ *
+ */
+
 public class GeneticVariationProvider extends JPanel implements IInfoProvider{
 
 	private PvDesktop desktop;
 	private JComponent resultPanel;
 	private ArrayList<String []> temp = null;
 	private TableModel dataModel = null;
-	public static TableRowSorter<TableModel> sorter;
+	public TableRowSorter<TableModel> sorter;
 	public GeneticVariationProvider(InfoRegistry registry, PvDesktop desktop) {
 		
 		registry.registerInfoProvider(this);
@@ -53,11 +64,20 @@ public class GeneticVariationProvider extends JPanel implements IInfoProvider{
 		resultPanel = new JPanel();
 	}
 	
+	/**
+	 * Implementing the required function of IInfoProvider interface.
+	 * Gives the name to be shown in the inforegistry plugin.
+	 */
 	public String getName(){
 		String name = "Genetic Variation Provider";
 		return(name);	
 	}
 	
+	
+	/**
+	 * Implementing the required function of IInfoProvider interface.
+	 * Tells inforegistry that it works only for gene products.
+	 */	
 	public Set<DataNodeType> getDatanodeTypes(){
 		
 		Set<DataNodeType> s = new HashSet<DataNodeType>();
@@ -65,7 +85,17 @@ public class GeneticVariationProvider extends JPanel implements IInfoProvider{
 		return s;	
 	}
 	
+	
+	/**
+	 * Implementing the required function of IInfoProvider interface.
+	 * Queries ensembl biomart to find genetic variation information regarding the selected data node.
+	 * 
+	 * @param xref - to provide id and data source of the selected data node
+	 * @return JComponent containing the features in the tabular form to be displayed 
+	 * in the info panel. 
+	 */	
 	public JComponent getInformation(Xref xref){
+		
 		if(desktop.getSwingEngine().getCurrentOrganism() == null)
 			return(new JLabel ("Organism not set for active pathway."));
 	
@@ -76,12 +106,16 @@ public class GeneticVariationProvider extends JPanel implements IInfoProvider{
 		}
 			if(BiomartQueryService.isInternetReachable())
 			{
+				/*
+				 * There were ambiguities in getting attributes dynamically so right now attributes are
+				 * chosen statically but in future they will be made dynamic. 
+				 */
 				String [] attr = {"Associated Gene Name","Ensembl Gene ID","Ensembl Gene ID","PolyPhen prediction","PolyPhen score","SIFT prediction","SIFT score","Protein location (aa)","Reference ID","Minor allele frequency","Chromosome Location (bp)","Transcript location (bp)","Variant Alleles","Ensembl Transcript ID"};
-				System.err.println("Internet is ok");
 
+				
 				String organsim = Utils.mapOrganism(desktop.getSwingEngine().getCurrentOrganism().toString());
 				if(organsim != null){
-					//TODO: move this to biomart basic class as properties!
+
 					Collection<String> attrs = new HashSet<String>();
 					attrs.add("ensembl_gene_id");
 					attrs.add("ensembl_transcript_id");
@@ -100,12 +134,14 @@ public class GeneticVariationProvider extends JPanel implements IInfoProvider{
 					Collection<String> identifierFilters = new HashSet<String>();
 					identifierFilters.add(mapped.getId().toString());
 					
+					//Creating query for ensembl biomart
 					Document result = BiomartQueryService.createQuery(organsim, attrs, identifierFilters,"TSV");
-					System.err.println("10");
+					
+					//Querying enesmbl biomart
 					InputStream is = BiomartQueryService.getDataStream(result);
-					System.err.println("20");
+					
+					
 					temp = matrixFromInputStream(is);
-					System.err.println("30");
 					String[][] temp_arr = new String[2][3];
 					temp_arr[0][0]="Ensembl Gene ID";
 					temp_arr[0][1]="Associated Gene Name";
@@ -113,7 +149,6 @@ public class GeneticVariationProvider extends JPanel implements IInfoProvider{
 					temp_arr[1][0]=null;
 					temp_arr[1][1]=null;
 					temp_arr[1][2]=null;
-					//String temp_associated_gene_name=null;
 					
 					for(int i=0;i<temp.get(0).length;i++) {
 						if(temp.get(0)[i].equals("Ensembl Gene ID") ){
@@ -122,25 +157,19 @@ public class GeneticVariationProvider extends JPanel implements IInfoProvider{
 							temp_arr[1][1] = temp.get(1)[i];
 						}	
 					}
-					temp_arr[1][2] = String.valueOf((temp.size()-1));
-					System.err.println(temp.get(0)[0]);
+					
+					temp_arr[1][2] = String.valueOf((temp.size()-1));					
 					
 					if(temp.size() == 1){
 						return new JLabel ("No information returned.");
 					} else{
-						System.err.println("I am here");
 						resultPanel.removeAll();
 						resultPanel.setLayout(new BoxLayout(resultPanel,BoxLayout.Y_AXIS));
-						//resultPanel.add(new JLabel("Ensembl Gene ID: " + temp_ensembl_gene_id));
-						//resultPanel.add(new JLabel("Associated Gene Name: " + temp_associated_gene_name));
-						//resultPanel.add(new JLabel("Number of SNPs: " + temp_num_of_snp));
 						resultPanel.add((Utils.arrayToTable(temp_arr)));
 						JButton show_table = new JButton("Show Table");
 						show_table.setAlignmentX(Component.CENTER_ALIGNMENT);
-						//show_table.setAlignmentX(CENTER_ALIGNMENT);
 						resultPanel.add(show_table);
 						final TableDialog td = new TableDialog(this,arrayToTable(temp),attr);
-						//resultPanel.add(arrayToTable(temp));
 						show_table.addActionListener(new ActionListener() {
 							public void actionPerformed(ActionEvent e){
 								td.setVisible(true);
@@ -153,14 +182,18 @@ public class GeneticVariationProvider extends JPanel implements IInfoProvider{
 					return(new JLabel ("This organism is not supported by Ensembl."));
 				}			
 			} else {				
-				System.err.println("Internet not working");
 				JLabel jl = new JLabel ("Error: Cannot connect to the internet.");
 				jl.setHorizontalAlignment(JLabel.RIGHT);
 				return jl;			
 			}
 		}
 	
-		
+	/**
+	 * maps given id to the corresponding ensembl id
+	 * 
+	 * @param xref - id of the gene product to be mapped
+	 * @return - mapped ensembl id
+	 */
 		private Xref idMapper(Xref xref){
 			IDMapperStack mapper;
 			
@@ -173,7 +206,6 @@ public class GeneticVariationProvider extends JPanel implements IInfoProvider{
 				try {
 					result = mapper.mapID(xref, DataSource.getBySystemCode("En"));
 				} catch (IDMapperException e) {
-					// TODO Auto-generated catch block
 					e.printStackTrace();
 					return (new Xref("",null));
 				}
@@ -184,19 +216,24 @@ public class GeneticVariationProvider extends JPanel implements IInfoProvider{
 			}
 		}
 		
+		/**
+		 * helper function to make a list of values obtained by splitting each line of InputStream with a 
+		 * tab delimiter
+		 * 
+		 * @param is - input stream
+		 * @return - matrix
+		 */
+		
 		private ArrayList<String []> matrixFromInputStream(InputStream is){
 			ArrayList<String []> al = new ArrayList<String []>(); 
 			int count = 0;
 			BufferedReader br = null;
-			//StringBuilder sb = new StringBuilder();
 			String line;
-			
 			try {
 				br = new BufferedReader(new InputStreamReader(is));
 				while ((line = br.readLine()) != null) {
 					al.add(line.split("\t"));
 					count++;		
-					System.err.println(count);
 				}
 			} catch (IOException e) {
 				e.printStackTrace();
@@ -209,16 +246,28 @@ public class GeneticVariationProvider extends JPanel implements IInfoProvider{
 					}
 				}
 			}
-
-			//sb.deleteCharAt(sb.length()-1);
 			return al;
 		}
+		
+		/**
+		 * A wrapper function to wrap two function calls
+		 * @param m - A list of String array
+		 * @return - JScrollPane containing table formed from the list
+		 */
 		
 		private JScrollPane arrayToTable(final ArrayList<String []> m ) {
 			
 			return tempTableToTable(arrayToTempTable(m));  
 		}
 
+		
+		/**
+		 *  Updates information shown in info panel but updating elements attached to the JPanel.
+		 *  It also removes attributes that are disabled by the user.
+		 *  
+		 * @param jp - JPanel that needs to be edited
+		 * @param attr - List of attributes that need to be removed
+		 */
 		public void sendResult(JPanel jp,List<String> attr) {
 			
 			BorderLayout layout = (BorderLayout) jp.getLayout();
@@ -230,12 +279,17 @@ public class GeneticVariationProvider extends JPanel implements IInfoProvider{
 				
 			}			
 			jp.add(tempTableToTable(temp_table),BorderLayout.CENTER);			
-			
 			jp.revalidate();
 			jp.repaint();
 		}
 		
 		
+		/**
+		 * Makes a table from a list of string arrays
+		 * 
+ 		 * @param m - list of string array
+		 * @return - table formed from the list of string array
+		 */
 		private JTable arrayToTempTable(final ArrayList<String []> m ){
 	
 			dataModel = new AbstractTableModel() {
@@ -254,16 +308,24 @@ public class GeneticVariationProvider extends JPanel implements IInfoProvider{
 		          
 		      };
 		      
+		      //Setting sorting row functionality on each column of the table
 		      sorter = new TableRowSorter<TableModel>(dataModel);
 		      JTable table = new JTable(dataModel);
+		      
+		      //Setting custom renderer to color the prediction fields
 		      table.setDefaultRenderer(Object.class, new Renderer());
 		      table.setRowSorter(sorter); 	
-		      //table.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
+		      
 		      table.setAutoCreateRowSorter(true);
+		      sorter.setRowFilter(RowFilter.regexFilter("T/C"));
+		      
 			return table;
 			
 		}
 		
+		/**
+		 * Puts a table inside a scroll pane
+		 */
 		private JScrollPane tempTableToTable(JTable table){
 		      JScrollPane scrollpane = new JScrollPane(table,  JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);		      
 			return scrollpane;

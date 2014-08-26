@@ -44,6 +44,15 @@ import org.pathvisio.desktop.PvDesktop;
 import org.pathvisio.inforegistry.IInfoProvider;
 import org.w3c.dom.Document;
 
+/**
+ * This provider queries ensembl biomart to get coding sequence of 
+ * the selected gene product and display it in the info panel. It also retrieves 
+ * all the exons for the gene product. User is given an option to mark all the exons
+ * 
+ * @author rsaxena
+ *
+ */
+
 public class SequenceViewerProvider implements IInfoProvider {
 	
 	private PvDesktop desktop;
@@ -52,79 +61,103 @@ public class SequenceViewerProvider implements IInfoProvider {
 		this.desktop = desktop;
 	}
 	
+	/**
+	 * Implementing the required function of IInfoProvider interface.
+	 * Gives the name to be shown in the inforegistry plugin.
+	 */
 	@Override
 	public String getName() {
 		return("Sequence Viewer");
 	}
-
+	
+	
+	/**
+	 * Implementing the required function of IInfoProvider interface.
+	 * Tells inforegistry that it works only for gene products.
+	 */
 	@Override
 	public Set<DataNodeType> getDatanodeTypes() {
 		Set<DataNodeType> s = new HashSet<DataNodeType>();
 		s.add(DataNodeType.GENEPRODUCT);
 		return s;
 	}
-
+	
+	
+	/**
+	 * Implementing the required function of IInfoProvider interface.
+	 * Queries ensembl biomart to find coding sequence of the selected data node.
+	 * 
+	 * @param xref - to provide id and data source of the selected data node
+	 * @return JComponent containing the coding sequence to be displayed 
+	 * in the info panel. 
+	 */
 	@Override
 	public JComponent getInformation(Xref xref) {
 
+		//Makes sure organism for the selected gene product is know		
 		if(desktop.getSwingEngine().getCurrentOrganism() == null)
 			return(new JLabel ("Organism not set for active pathway."));
-
+		
+		//Queries Utils.mapId to find any corresponding ensembl gene id
 		Xref mapped = Utils.mapId(xref, desktop);
 		System.out.println(mapped);
 		if(mapped.getId().equals("")){
 			return(new JLabel ("This identifier cannot be mapped to Ensembl."));
 		}
+		
+		//Checks is the internet connection working before proceeding forward		
 		if(BiomartQueryService.isInternetReachable()) {
 
+			//Holds attributes for the organism of the gene product selected			
 			Map<String,String> attr_map;
-			System.err.println("Internet is ok");
-
 			String organism = Utils.mapOrganism(desktop.getSwingEngine().getCurrentOrganism().toString());
 
 			
 			
 			if(organism != null) {
 				
+				
 				Collection<String> attrs = new HashSet<String>();
 				attrs.add("ensembl_gene_id");
 				attrs.add("ensembl_transcript_id");
+				
+				//responsible for getting coding sequence
 				attrs.add("coding");
 				
 				Collection<String> identifierFilters = new HashSet<String>();
 				identifierFilters.add(mapped.getId().toString());
+
+				//Querying Biomart
 				Document result = BiomartQueryService.createQuery(organism, attrs, identifierFilters,"FASTA");
+				
+				//Creating input stream of the results obtained from the biomart
 				InputStream is = BiomartQueryService.getDataStream(result);
-				//String s = Utils.getStringFromInputStream(is);
-				//System.err.println(s);
-				//is = BiomartQueryService.getDataStream(result);
+
+				//Creating a new object of custom data structure(SequenceContainer)
 				final SequenceContainer sc = new SequenceContainer();
+				
+				//parsing the coding sequence returned in fasta format
 				sc.fastaParser(is,mapped.getId().toString(),false);
 
+				/**
+				 * Now preparing to query for exons
+				 */
+				
 				attrs.remove("coding");
+				
+				//responsible for getting exons
 				attrs.add("gene_exon");
-				result = BiomartQueryService.createQuery(organism, attrs, identifierFilters,"FASTA");
+				
+				
+				result = BiomartQueryService.createQuery(organism, attrs, identifierFilters,"FASTA");				
 				is = BiomartQueryService.getDataStream(result);
-				//String s = Utils.getStringFromInputStream(is);
-				//System.err.println(s);				
 				sc.fastaParser(is,mapped.getId().toString(),true);
 				
-				System.err.println("*****************");
-				sc.print();
-				
-		
-		//return (new JLabel(s));
+				//JCombobox to show all the transcript ids
 				final JComboBox<String> transcriptIdList = new JComboBox<String>();
 				MutableComboBoxModel<String> model = (MutableComboBoxModel<String>)transcriptIdList.getModel();
-				JPanel jp = new JPanel();
-
-
-				//JPanel noWrapPanel = new JPanel( new BorderLayout() );
-				//noWrapPanel.add( jta );
-				//JScrollPane jsp = new JScrollPane( jta );
-				//jsp.setViewportView(noWrapPanel);
-				//noWrapPanel.add(jta);
 				
+				JPanel jp = new JPanel();
 
 				final JTextArea jta = new JTextArea();
 				jta.setLineWrap(true);
@@ -136,47 +169,44 @@ public class SequenceViewerProvider implements IInfoProvider {
 				model.addElement(obj.getTranscriptId());
 				}
 				
-				transcriptIdList.addActionListener(
-						new ActionListener(){
-							public void actionPerformed(ActionEvent e){
-								System.err.println("Triggering");
-		                        JComboBox<String> temp_combo = (JComboBox<String>)e.getSource();
-		                        String currentQuantity = (String)temp_combo.getSelectedItem();
-		                        System.err.println(currentQuantity);
-		                        jta.setText(sc.find(currentQuantity).getSequence());
-		                        //System.err.println();
-							}
-						});
+				transcriptIdList.addActionListener(new ActionListener(){
+					public void actionPerformed(ActionEvent e){
+						JComboBox<String> temp_combo = (JComboBox<String>)e.getSource();
+		                String currentQuantity = (String)temp_combo.getSelectedItem();
+		                jta.setText(sc.find(currentQuantity).getSequence());
+		                }
+					});
 				
+				//Button to mark all the exons
 				JToggleButton mark_exon = new JToggleButton("Mark Exons");
 				
-				mark_exon.addActionListener(
-						new ActionListener(){
-							String replacedStr = null;
-								public void actionPerformed(ActionEvent e){
-								if( ((JToggleButton)e.getSource()).isSelected()){
-									replacedStr = sc.find(transcriptIdList.getSelectedItem().toString()).getSequence();
-									
-									jta.setText(replacedStr);
-									Highlighter highlighter = jta.getHighlighter();
-								      HighlightPainter painter = 
-								             new DefaultHighlighter.DefaultHighlightPainter(Color.PINK);
-									for(String temp_exon: sc.find(transcriptIdList.getSelectedItem().toString()).getExon()){
-									if(sc.find(transcriptIdList.getSelectedItem().toString()).getSequence().contains(temp_exon)){
-
-										
-										 int p0 = replacedStr.indexOf(temp_exon);										
-									      int p1 = p0 + temp_exon.length();
-									      
-									      try {
-											highlighter.addHighlight(p0, p1, painter );
-										} catch (BadLocationException e1) {
-											
+				
+				mark_exon.addActionListener(new ActionListener(){
+					
+					String replacedStr = null;
+					
+					public void actionPerformed(ActionEvent e){
+					
+						if( ((JToggleButton)e.getSource()).isSelected()){
+						
+							replacedStr = sc.find(transcriptIdList.getSelectedItem().toString()).getSequence();		
+							jta.setText(replacedStr);
+							
+							Highlighter highlighter = jta.getHighlighter();
+							HighlightPainter painter = new DefaultHighlighter.DefaultHighlightPainter(Color.PINK);
+							
+							for(String temp_exon: sc.find(transcriptIdList.getSelectedItem().toString()).getExon()){
+								if(sc.find(transcriptIdList.getSelectedItem().toString()).getSequence().contains(temp_exon)){										
+									int p0 = replacedStr.indexOf(temp_exon);										
+									int p1 = p0 + temp_exon.length();      
+									try {
+										//Highlighting the exon
+										highlighter.addHighlight(p0, p1, painter );
+										} 
+									catch (BadLocationException e1) {
 											e1.printStackTrace();
 										}
-									}}}}});
-
-				
+									}}}}});				
 				jp.setLayout(new BorderLayout());
 				jp.add(transcriptIdList, BorderLayout.NORTH);
 				jp.add(jsp,BorderLayout.CENTER);

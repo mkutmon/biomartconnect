@@ -19,6 +19,13 @@ import org.bridgedb.IDMapperStack;
 import org.bridgedb.Xref;
 import org.pathvisio.desktop.PvDesktop;
 
+/**
+ * Contains common functions and mappings for all the modules. 
+ * 
+ * @author mkutmon
+ * @author Rohan Saxena
+ */
+
 public class Utils {
 	
 	/**
@@ -58,7 +65,13 @@ public class Utils {
 		return null;
 	}
 	
-
+	/**
+	 * Converts array to a dataModel and builds a JTable using this dataModel
+	 * 
+	 * @param m - array to be converted
+	 * @return - JScrollPane containing table created
+	 */
+	
 	public static JScrollPane arrayToTable(final String[][] m) {
 
 		TableModel dataModel = new AbstractTableModel() {
@@ -87,6 +100,10 @@ public class Utils {
 	}
 	
 
+	/**
+	 * maps given id to the corresponding ensembl id
+	 */
+	
 	public static Xref mapId(Xref xref, PvDesktop desktop) {
 
 		IDMapperStack mapper = desktop.getSwingEngine().getGdbManager().getCurrentGdb();
@@ -107,6 +124,13 @@ public class Utils {
 			}
 		}
 	}
+	
+	/**
+	 * Reads input stream and builds the contents as a string
+	 * 
+	 * @param is - InputStream to be converted to the string
+	 * @return - string formed
+	 */
 	
 	public static String getStringFromInputStream(InputStream is) {
 		 
@@ -133,7 +157,6 @@ public class Utils {
 				}
 			}
 		}
-
 		sb.deleteCharAt(sb.length()-1);
 		if(count == 1){
 			return("Invalid");

@@ -1,7 +1,15 @@
 package org.pathvisio.biomartconnect.impl;
 
+
 import java.util.ArrayList;
 import java.util.List;
+
+/**
+ * Custom data structure to store coding information for each transcript id.
+ * 
+ * @author rsaxena
+ *
+ */
 
 public class InfoPerTranscriptId {
 

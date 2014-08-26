@@ -10,15 +10,26 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+/**
+ * A custom made data structure for storing coding information of a gene product.
+ * 
+ * @author rsaxena
+ *
+ */
+
 public class SequenceContainer {
 
+	//A list of all the transcript ids of this gene product
 	List<InfoPerTranscriptId> transcriptIdList;
 	
-	public SequenceContainer(){
-		
+	public SequenceContainer(){	
 		transcriptIdList = new ArrayList<InfoPerTranscriptId>();
 	}
 	
+	/**
+	 * Adds new transcript sequence for on gene id
+	 * @return - object containing new sequence 
+	 */
 	public InfoPerTranscriptId addSequence(){
 		
 		InfoPerTranscriptId temp = new InfoPerTranscriptId();
@@ -28,6 +39,12 @@ public class SequenceContainer {
 		return temp;
 	}
 	
+	/**
+	 * Searches if this transcript id already exists
+	 * 
+	 * @param id - transcript id to be searched
+	 * @return - object containing transcript id if it exits otherwise null
+	 */
 	public InfoPerTranscriptId find(String id) {
 		for(InfoPerTranscriptId temp: transcriptIdList){
 			if(temp.getTranscriptId().equals(id)){
@@ -36,6 +53,14 @@ public class SequenceContainer {
 		}
 		return null;
 	}
+	
+	/**
+	 * Parses fasta format to extract all the coding sequences
+	 * 
+	 * @param is - InputStream containing coding sequence in fasta format
+	 * @param id - ensembl gene id
+	 * @param isExon - true if parsing for Exon otherwise false
+	 */
 	
 	public void fastaParser(InputStream is, String id, Boolean isExon){
 
@@ -48,10 +73,8 @@ public class SequenceContainer {
 			br = new BufferedReader(new InputStreamReader(is));
 			while ((line = br.readLine()) != null) {
 				
-				System.err.println(line);
-				
 				if(line.startsWith(">")){
-
+					
 					if(temp_array != null){
 						
 						for(int i=0;i<temp_array.length && temp_array[i] != null;i++){
@@ -71,21 +94,16 @@ public class SequenceContainer {
 					
 					String temp = line.substring(1);
 					temp_array = temp.split("[|]");
-					//System.err.println(Arrays.toString(temp_array));
+
 					Set<String> temp_set = new HashSet<String>();
+					
 					for(int i=0;i<temp_array.length;i++){
-						
 						temp_set.addAll(Arrays.asList(temp_array[i].split("[;]")));
 					}
-					
-					//System.err.println(temp_set.toString());
 					
 					temp_array = temp_set.toArray(temp_array);
 					
 					for(int i=0;i<temp_array.length && temp_array[i] != null;i++){
-						
-						System.err.println(temp_array[i]);
-						
 						if(!temp_array[i].equals(id)){
 							if(find(temp_array[i]) == null){
 							InfoPerTranscriptId temp_seq = addSequence();
@@ -100,7 +118,6 @@ public class SequenceContainer {
 				else {
 					sb.append(line);
 				}
-				//sb.append('\n');		
 			}
 			
 			for(int i=0;i<temp_array.length && temp_array[i] != null;i++){
@@ -130,8 +147,7 @@ public class SequenceContainer {
 		
 	}
 
-	public void print() {
-		// TODO Auto-generated method stub
+/*	public void print() {
 		for(InfoPerTranscriptId temp: transcriptIdList){			
 			System.err.println("starts here" + temp.getTranscriptId());
 			
@@ -153,4 +169,5 @@ public class SequenceContainer {
 			
 		}
 	}
+	*/
 }

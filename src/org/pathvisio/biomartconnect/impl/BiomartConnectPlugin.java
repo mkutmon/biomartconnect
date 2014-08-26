@@ -1,7 +1,4 @@
 package org.pathvisio.biomartconnect.impl;
-
-
-
 import javax.swing.JPanel;
 
 import org.pathvisio.core.ApplicationEvent;
@@ -16,13 +13,18 @@ import org.pathvisio.desktop.plugin.Plugin;
 import org.pathvisio.inforegistry.IInfoProvider;
 import org.pathvisio.inforegistry.InfoRegistry;
 
-
 /**
+ * 
+ * It creates a drop box in the info panel listing the three providers it provides. 
+ * A provider is a unique service that retrieves some information from the internet and 
+ * displays it in the info panel. It implements basic event listeners provided by pathvisio
+ * and contains modules that register and unregister providers with the info registry module.
  * 
  * @author rohansaxena
  * @author martina
  *
  */
+
 public class BiomartConnectPlugin extends JPanel implements  SelectionListener, ApplicationEventListener, PathwayElementListener, Plugin {
 	
 	private InfoRegistry registry;
@@ -30,6 +32,9 @@ public class BiomartConnectPlugin extends JPanel implements  SelectionListener, 
 	private IInfoProvider var;
 	private IInfoProvider seq;
 
+	/**
+	 * Unregistering all the providers when the plugin is unregistered
+	 */
 	
 	@Override
 	public void done() {
@@ -37,6 +42,10 @@ public class BiomartConnectPlugin extends JPanel implements  SelectionListener, 
 		registry.unregisterInfoProvider(var);
 		registry.unregisterInfoProvider(seq);
 	}
+	
+	/**
+	 * Initializing all the providers and registering them with the inforegistry plugin
+	 */
 	
 	@Override
 	public void init(PvDesktop desktop) {
@@ -54,6 +63,7 @@ public class BiomartConnectPlugin extends JPanel implements  SelectionListener, 
 		VPathway vp = desktop.getSwingEngine().getEngine().getActiveVPathway();
 		if(vp != null) vp.addSelectionListener(this);	
 	}
+	
 	
 	public void selectionEvent(SelectionEvent e) {
 		switch(e.type) {

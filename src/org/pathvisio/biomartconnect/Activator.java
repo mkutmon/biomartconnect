@@ -7,8 +7,9 @@ import org.pathvisio.biomartconnect.impl.BiomartConnectPlugin;
 
 
 /**
+ * This module provides three information providers to the inforegistry module. 
  * 
- * @author rohan
+ * @author Rohan Saxena
  *
  */
 public class Activator implements BundleActivator {
