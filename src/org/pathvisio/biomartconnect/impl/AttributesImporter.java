@@ -72,6 +72,7 @@ public class AttributesImporter {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
+
 		}
 		return attr_map;
 	}

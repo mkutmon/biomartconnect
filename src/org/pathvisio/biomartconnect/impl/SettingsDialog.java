@@ -62,7 +62,7 @@ public class SettingsDialog extends JDialog {
 		JButton applyButton = new JButton("Apply");
         applyButton.addActionListener(new ActionListener() {
         	public void actionPerformed(ActionEvent e){
-				bcp.sendResult();
+				bcp.updateResultPanel();
 			}
         });
         
