@@ -197,7 +197,6 @@ public class BasicBiomartProvider implements IInfoProvider {
 	 * @return - converted double array
 	 */
 	private String[][] csvReader(String s) {
-		System.err.println(s);
 		String[] lines = s.split("\n");
 		String[] keys = lines[0].split("\t");
 		String[] values = lines[1].split("\t");

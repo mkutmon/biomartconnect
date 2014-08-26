@@ -100,7 +100,6 @@ public class SequenceViewerProvider implements IInfoProvider {
 		
 		//Queries Utils.mapId to find any corresponding ensembl gene id
 		Xref mapped = Utils.mapId(xref, desktop);
-		System.out.println(mapped);
 		if(mapped.getId().equals("")){
 			return(new JLabel ("This identifier cannot be mapped to Ensembl."));
 		}
