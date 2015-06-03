@@ -12,7 +12,6 @@ import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.table.AbstractTableModel;
 import javax.swing.table.TableModel;
-import javax.swing.table.TableRowSorter;
 
 import org.bridgedb.DataSource;
 import org.bridgedb.IDMapperException;
@@ -67,6 +66,43 @@ public class Utils {
 	}
 	
 	/**
+	 * maps between BridgeDb species names
+	 * and Ensembl BioMart species names
+	 */
+	public static String mapOrganismShort(String organism) {
+		Map<String, String> orgMap = new HashMap<String, String>();
+		orgMap.put("BosTaurus", "btaurus");
+		orgMap.put("CaenorhabditisElegans", "celegans");
+		orgMap.put("CanisFamiliaris", "cfamiliaris");
+		orgMap.put("DanioRerio", "drerio");
+		orgMap.put("DasypusNovemcinctus", "dnovemcinctus");
+		orgMap.put("DrosophilaMelanogaster", "dmelanogaster");
+		orgMap.put("EchinposTelfairi", "etelfairi");
+		orgMap.put("EquusCaballus", "ecaballus");
+		orgMap.put("GallusGallus", "ggallus");	
+		orgMap.put("HomoSapiens", "hsapiens");
+		orgMap.put("LoxodontaAfricana", "lafricana");
+		orgMap.put("MacacaMulatta", "mmulatta");
+		orgMap.put("MusMusculus", "mmusculus");
+		orgMap.put("MonodelphisDomestica", "mdomestica");
+		orgMap.put("OrnithorhynchusAnatinus", "oanatinus");
+		orgMap.put("OryziasLatipes", "olatipes");
+		orgMap.put("OryctolagusCuniculus", "ocuniculus");
+		orgMap.put("PanTroglodytes", "ptroglodytes");
+		orgMap.put("SusScrofa", "sscrofa");
+		orgMap.put("RattusNorvegicus", "rnorvegicus");
+		orgMap.put("SaccharomycesCerevisiae", "scerevisiae");
+		orgMap.put("SorexAraneus", "saraneus");
+		orgMap.put("TetraodonNigroviridis", "tnigroviridis");		
+		orgMap.put("XenopusTropicalis", "xtropicalis");
+		
+		if(orgMap.containsKey(organism)) {
+			return orgMap.get(organism);
+		}
+		return null;
+	}
+	
+	/**
 	 * Converts array to a dataModel and builds a JTable using this dataModel
 	 * 
 	 * @param m - array to be converted
@@ -113,7 +149,7 @@ public class Utils {
 			return xref;			
 		} else {
 			try {
-				Set<Xref> result = mapper.mapID(xref, DataSource.getBySystemCode("En"));
+				Set<Xref> result = mapper.mapID(xref, DataSource.getExistingBySystemCode("En"));
 				if(result.isEmpty())
 					return (new Xref("",null));
 				else

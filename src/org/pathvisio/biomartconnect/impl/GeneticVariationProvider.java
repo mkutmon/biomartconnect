@@ -2,7 +2,6 @@ package org.pathvisio.biomartconnect.impl;
 
 import java.awt.BorderLayout;
 import java.awt.Component;
-import java.awt.LayoutManager;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.BufferedReader;
@@ -12,9 +11,7 @@ import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 import javax.swing.BoxLayout;
@@ -26,9 +23,10 @@ import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.RowFilter;
 import javax.swing.table.AbstractTableModel;
-import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableModel;
 import javax.swing.table.TableRowSorter;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
 
 import org.bridgedb.DataSource;
 import org.bridgedb.IDMapperException;
@@ -38,7 +36,10 @@ import org.pathvisio.core.model.DataNodeType;
 import org.pathvisio.desktop.PvDesktop;
 import org.pathvisio.inforegistry.IInfoProvider;
 import org.pathvisio.inforegistry.InfoRegistry;
+import org.w3c.dom.DOMImplementation;
 import org.w3c.dom.Document;
+import org.w3c.dom.DocumentType;
+import org.w3c.dom.Element;
 
 /**
  * Provider to show genetic variation data for selected gene product. It shows some basic data in tabular form
@@ -110,38 +111,99 @@ public class GeneticVariationProvider extends JPanel implements IInfoProvider{
 				 * There were ambiguities in getting attributes dynamically so right now attributes are
 				 * chosen statically but in future they will be made dynamic. 
 				 */
-				String [] attr = {"Associated Gene Name","Ensembl Gene ID","Ensembl Gene ID","PolyPhen prediction","PolyPhen score","SIFT prediction","SIFT score","Protein location (aa)","Reference ID","Minor allele frequency","Chromosome Location (bp)","Transcript location (bp)","Variant Alleles","Ensembl Transcript ID"};
-
+				String [] attr = {
+					"Ensembl Gene ID", "Associated Gene Name", 
+					"Chromosome Name", "Gene End (bp)",
+					"Gene Start (bp)", "Variation Name",
+					"Variation source", "Chromosome position start (bp)",
+					"Chromosome position end (bp)", "PolyPhen prediction", 
+					"PolyPhen score", "SIFT prediction", 
+					"SIFT score", "Consequence to transcript"
+				};
 				
-				String organsim = Utils.mapOrganism(desktop.getSwingEngine().getCurrentOrganism().toString());
+				String organsim = Utils.mapOrganismShort(desktop.getSwingEngine().getCurrentOrganism().toString());
 				if(organsim != null){
 
-					Collection<String> attrs = new HashSet<String>();
-					attrs.add("ensembl_gene_id");
-					attrs.add("ensembl_transcript_id");
-					attrs.add("external_id");
-					attrs.add("external_gene_id");
-					attrs.add("allele");
-					attrs.add("minor_allele_freq");
-					attrs.add("transcript_location");
-					attrs.add("chromosome_location");
-					attrs.add("sift_prediction_2076");
-					attrs.add("sift_score_2076");
-					attrs.add("polyphen_prediction_2076");
-					attrs.add("polyphen_score_2076");
-					attrs.add("peptide_location");
+					Collection<String> attrsGene = new HashSet<String>();
+					attrsGene.add("ensembl_gene_id");
+					attrsGene.add("external_gene_name");
+					attrsGene.add("chromosome_name");
+					attrsGene.add("end_position");
+					attrsGene.add("start_position");
+					
+					Collection<String> attrsVar = new HashSet<String>();
+					attrsVar.add("refsnp_id");
+					attrsVar.add("refsnp_source");
+					attrsVar.add("chrom_start");
+					attrsVar.add("chrom_end");
+					attrsVar.add("polyphen_prediction");
+					attrsVar.add("polyphen_score");
+					attrsVar.add("sift_prediction");
+					attrsVar.add("sift_score");
+					attrsVar.add("consequence_type_tv");
 					
 					Collection<String> identifierFilters = new HashSet<String>();
 					identifierFilters.add(mapped.getId().toString());
 					
+					try {
+					DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+					DocumentBuilder docBuilder = dbf.newDocumentBuilder();
+					// create doc
+					Document query = docBuilder.newDocument();
+					DOMImplementation domImpl = query.getImplementation();
+					DocumentType doctype = domImpl.createDocumentType("Query", "", "");
+					query.appendChild(doctype);
+					Element root = query.createElement("Query");
+					root.setAttribute("client", "true");
+					root.setAttribute("formatter", "TSV");
+					root.setAttribute("limit", "-1");
+					root.setAttribute("header", "1");
+					query.appendChild(root);
+					/* specify the dataset to use */
+					Element dataset = query.createElement("Dataset");
+					dataset.setAttribute("name", organsim + "_gene_ensembl");
+					
+					root.appendChild(dataset);
+					/* filter to only the geneIDs we care about -- must be ensembl */
+					Element filter = query.createElement("Filter");
+					filter.setAttribute("name", "ensembl_gene_id");
+					String identifiers = identifierFilters.toString().replaceAll("[\\[\\] ]", "");
+					filter.setAttribute("value", identifiers);
+					dataset.appendChild(filter);
+					/* add attributes specified in app */
+					for(String att : attrsGene) {
+						Element a = query.createElement("Attribute");
+						a.setAttribute("name", att);
+						dataset.appendChild(a);
+					}
+					
+					Element datasetVar = query.createElement("Dataset");
+					datasetVar.setAttribute("name", organsim + "_snp");
+					
+					root.appendChild(datasetVar);
+					/* filter to only the geneIDs we care about -- must be ensembl */
+					Element filter2 = query.createElement("Filter");
+					filter2.setAttribute("name", "ensembl_gene");
+					String identifiers2 = identifierFilters.toString().replaceAll("[\\[\\] ]", "");
+					filter2.setAttribute("value", identifiers2);
+					datasetVar.appendChild(filter2);
+					/* add attributes specified in app */
+					for(String att : attrsVar) {
+						Element a = query.createElement("Attribute");
+						a.setAttribute("name", att);
+						datasetVar.appendChild(a);
+					}
+					
 					//Creating query for ensembl biomart
-					Document result = BiomartQueryService.createQuery(organsim, attrs, identifierFilters,"TSV");
+//					Document result = BiomartQueryService.createQuery(organsim, attrs, identifierFilters,"TSV");
 					
 					//Querying enesmbl biomart
-					InputStream is = BiomartQueryService.getDataStream(result);
-					
-					
+					System.out.println("start query\t" + System.currentTimeMillis());
+					InputStream is = BiomartQueryService.getDataStream(query);
+					System.out.println("finished query\t" + System.currentTimeMillis());
+
 					temp = matrixFromInputStream(is);
+					System.out.println("data read");
 					String[][] temp_arr = new String[2][3];
 					temp_arr[0][0]="Ensembl Gene ID";
 					temp_arr[0][1]="Associated Gene Name";
@@ -178,6 +240,11 @@ public class GeneticVariationProvider extends JPanel implements IInfoProvider{
 					    });
 						return resultPanel;			
 					}
+					} catch(Exception e) {
+						JLabel jl = new JLabel ("Error: Cannot create query.");
+						jl.setHorizontalAlignment(JLabel.RIGHT);
+						return jl;	
+					}
 				} else{
 					return(new JLabel ("This organism is not supported by Ensembl."));
 				}			
@@ -204,7 +271,7 @@ public class GeneticVariationProvider extends JPanel implements IInfoProvider{
 				mapper = desktop.getSwingEngine().getGdbManager().getCurrentGdb();
 				Set<Xref> result;
 				try {
-					result = mapper.mapID(xref, DataSource.getBySystemCode("En"));
+					result = mapper.mapID(xref, DataSource.getExistingBySystemCode("En"));
 				} catch (IDMapperException e) {
 					e.printStackTrace();
 					return (new Xref("",null));
@@ -226,14 +293,12 @@ public class GeneticVariationProvider extends JPanel implements IInfoProvider{
 		
 		private ArrayList<String []> matrixFromInputStream(InputStream is){
 			ArrayList<String []> al = new ArrayList<String []>(); 
-			int count = 0;
 			BufferedReader br = null;
 			String line;
 			try {
 				br = new BufferedReader(new InputStreamReader(is));
 				while ((line = br.readLine()) != null) {
 					al.add(line.split("\t"));
-					count++;		
 				}
 			} catch (IOException e) {
 				e.printStackTrace();

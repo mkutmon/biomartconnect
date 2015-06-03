@@ -10,33 +10,18 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-
-
-import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JComponent;
-import javax.swing.JEditorPane;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
-import javax.swing.JTextField;
-import javax.swing.JTextPane;
 import javax.swing.JToggleButton;
 import javax.swing.MutableComboBoxModel;
-
 import javax.swing.text.BadLocationException;
 import javax.swing.text.DefaultHighlighter;
 import javax.swing.text.Highlighter;
 import javax.swing.text.Highlighter.HighlightPainter;
-
-import javax.swing.text.JTextComponent;
-import javax.swing.text.LabelView;
-import javax.swing.text.ParagraphView;
-import javax.swing.text.StyleConstants;
-import javax.swing.text.StyledEditorKit;
-import javax.swing.text.View;
-import javax.swing.text.ViewFactory;
 
 import org.bridgedb.Xref;
 import org.pathvisio.core.model.DataNodeType;
@@ -108,7 +93,6 @@ public class SequenceViewerProvider implements IInfoProvider {
 		if(BiomartQueryService.isInternetReachable()) {
 
 			//Holds attributes for the organism of the gene product selected			
-			Map<String,String> attr_map;
 			String organism = Utils.mapOrganism(desktop.getSwingEngine().getCurrentOrganism().toString());
 
 			
@@ -165,7 +149,7 @@ public class SequenceViewerProvider implements IInfoProvider {
 				jta.setEditable(false);
 				
 				for(InfoPerTranscriptId obj: sc.transcriptIdList){
-				model.addElement(obj.getTranscriptId());
+					model.addElement(obj.getTranscriptId());
 				}
 				
 				transcriptIdList.addActionListener(new ActionListener(){
